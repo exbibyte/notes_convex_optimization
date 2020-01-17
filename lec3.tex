@@ -1,0 +1,183 @@
+\documentclass[12pt,letter]{article}
+
+%% \usepackage[fleqn]{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsfonts,amsthm,bm}
+\usepackage{breqn}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{algorithm2e}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{subcaption}
+%% \usepackage{datetime}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{parskip} %turns off paragraph indent
+\pagestyle{fancy}
+
+\usetikzlibrary{arrows}
+
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand*{\argminl}{\argmin\limits}
+
+\newcommand{\mathleft}{\@fleqntrue\@mathmargin0pt}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}} 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\norm}[1]{\|#1\|}
+
+\setcounter{MaxMatrixCols}{20}
+
+% remove excess vertical space for align equations
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+\begin {document}
+
+\lhead{Notes - Convex Optimization, 2020/01/17}
+
+\begin{enumerate}
+\item Polyhedral
+  \begin{align*}
+    P=\{x: Ax \leq b, Cx=D \}
+  \end{align*}
+
+\item Euclidean Ball
+  \begin{align*}
+    B(x_c,x) = \{ x: \norm{x-x_c}_2 \leq r \}
+  \end{align*}
+  Can use affine combination and triangular inequality of norm to prove convexity.
+\item Elipse
+  \begin{align*}
+    E(x_c,P) = \{ x: (x-x_c)^T P^{-1} (x-x_c) \leq 1 \}, P > 0\\
+    P=r^2 I \implies \text{ Euclidean Ball }\\
+    P=Q \begin{bmatrix}
+      \lambda_1 & ..\\
+      .. & \lambda_n\\
+    \end{bmatrix}
+    Q^T\\
+    (x-x_c)^T Q \begin{bmatrix}
+      \lambda_1 & ..\\
+      .. & \lambda_n\\
+    \end{bmatrix}
+    Q^T(x-x_c) \leq 1\\
+    \tilde{x}^T \begin{bmatrix}
+      \lambda_1 & ..\\
+      .. & \lambda_n\\
+    \end{bmatrix}
+    \tilde{x}^T \leq 1\\
+    \tilde{x}^T \begin{bmatrix}
+      \frac{1}{\lambda_1} & ..\\
+      .. & \frac{1}{\lambda_n}\\
+    \end{bmatrix}
+    \tilde{x} = \frac{\tilde{x_1}^2}{\lambda_1}+..+\frac{\tilde{x_n}^2}{\lambda_n}\leq 1\\
+    \text{volum of elipsoid proportional to } \sqrt{det(P)}=\sqrt{\Pi_i \lambda_i}
+  \end{align*}
+  \item Norm Ball
+  \begin{align*}
+    C=\{x: \norm{x} \leq 1 \} \text{ for any } \norm{*}
+  \end{align*}
+  Example: lp-norm\\
+  
+\item Cone
+  \begin{align*}
+    (\forall x \in C, \forall \theta \geq 0) \theta x \in C\\
+  \end{align*}
+\item Convex Cone
+  Eg: $S^n, S^N_+$ are convex cones\\
+  convexity check for $S^N_+$:\\
+  \begin{align*}
+    x_1 \in S^n_+ \implies v^Tx_1v \geq 0\\
+    x_2 \in S^n_+ \implies v^Tx_2v \geq 0\\
+    v^T(\theta x_1 + (1-\theta)x_2)v \geq 0\\
+    v^T\theta x_1 v + (1-\theta)v^T x_2 v \implies x \in S^n_+\\
+  \end{align*}
+  convexity check for cone:\\
+  \begin{align*}
+    x_1 \in S^n_+ \implies \theta x_1 \in S^n_+, \theta \geq 0\\
+    (\forall v) v^T x v \geq 0 \implies v^T(\theta x) v \geq 0 \implies \text{ cone}
+  \end{align*}
+\item Proper Cone\\
+  Definition:
+  \begin{itemize}
+  \item convex
+  \item closed(contains all boundary points)
+  \item solid(non-empty interior)
+  \item pointed(contains no line): $x \in K \implies -x \in K$
+  \end{itemize}
+  Then the proper cone K fefines a generalized inequality ($\leq_K$) in $\R^n$
+  \begin{align*}
+    x \leq_K y \implies y-x \in K\\
+    x <_K y \implies y-x \in int(K)
+  \end{align*}
+  Example: $K=R^n_+$ (non-negative orthant):
+  \begin{align*}
+    n = 2\\
+    x \leq_{R^2_+} y \implies y-x \in R^2_+
+  \end{align*}
+  Cone provides partial ordering using difference of 2 objects
+  Example: $X\ leq_{S^n_+} Y \implies Y-X \in S^n_+$ (Y-X is PSD)
+
+  \pagebreak
+  
+\item Operations Preserving Convexity
+  \begin{itemize}
+  \item intersection
+    \begin{align*}
+      S{\alpha}\text{ is affine, convex, convex cone} \forall \alpha \in A\\
+      \cap_{\alpha \in A} S_{\alpha} \text{ is affine, convex, convex cone}
+    \end{align*}
+    Example:Polyhedral is the intersection of some halfspaces and hyperplanes, so it is convex.\\
+    Any cloed convex set can be represented by possibly infinitely many half spaces.
+  \item affine functions\\
+    let $f(x)=Ax+b, f:\R^n \to \R^m$\\
+    then if S is a convex set we have:
+    \begin{itemize}
+    \item project forward: $f(S) = \{ f(X) : X \in S \}$ is convex
+    \item project back: $f^{-1}(S) = \{ X : f(X) \in S \}$ is convex
+    \end{itemize}
+    Example:
+    \begin{align*}
+      C = \{ y : y=Ax+b, \norm{x} \leq 1\}
+    \end{align*}
+    $\norm{x} \leq 1$ is convex, $Ax+b$ is affine $\implies$ C is convex\\
+    Example:
+    \begin{align*}
+      C = \{ x : \norm{Ax+b} \leq 1 \}
+    \end{align*}
+    $\{y: \norm{y} \leq 1 \}$\\
+    $y$ is an affine function of $x \implies$ C is convex\\
+  \end{itemize}
+\item Affine Functions
+  $A(x)=\sum_i x_i A_i + B, A_i\in S^n, B \in S^n, x\in \R^n$\\
+  is $\{X : \sum_i x_i A_i = \tilde{A}(x)\leq B \}$ convex?\\
+  let $y = B-\tilde{A}(x)$\\
+  $\{y: 0 \leq y \}$ is convex\\
+  We know $\{y: 0 \leq y \}$ is convex. Further y is an affine function of x $\implies$\\
+  $\{X : \sum_i x_i A_i \leq B \}$ is also convex\\
+  $\{X : \sum_i x_i A_i \leq B \}$ is a Linear Matrix Inequality
+
+  \pagebreak
+  
+\item Properties of convex sets
+  \begin{itemize}
+  \item Separating Hyperplanes: if $S,T \subset \R^n$ are convex and disjoint, then $\exists a \neq 0, b$ such that:\\
+    \begin{align*}
+      a^Tx \geq b, forall x \in S\\
+      a^Tx \leq b, forall x \in T\\
+    \end{align*}
+  \end{itemize}
+\item Supporting Hyperplane:\\
+  if $S$ is convex, $\forall x_0 \in \partial S$ (boundary of S), then $\exists a \neq 0$ such that $a^Tx \leq a^Tx_0, \forallx \in S$\\
+\end{enumerate}
+
+\end{document}
+
+  
