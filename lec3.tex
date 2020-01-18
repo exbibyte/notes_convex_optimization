@@ -63,16 +63,16 @@
       .. & \lambda_n\\
     \end{bmatrix}
     Q^T\\
-    (x-x_c)^T Q \begin{bmatrix}
+    (x-x_c)^T (Q \begin{bmatrix}
       \lambda_1 & ..\\
       .. & \lambda_n\\
     \end{bmatrix}
-    Q^T(x-x_c) \leq 1\\
+    Q^T)^{-1}(x-x_c) \leq 1\\
     \tilde{x}^T \begin{bmatrix}
-      \lambda_1 & ..\\
-      .. & \lambda_n\\
+      \frac{1}{\lambda_1} & ..\\
+      .. & \frac{1}{\lambda_n}\\
     \end{bmatrix}
-    \tilde{x}^T \leq 1\\
+    \tilde{x} \leq 1\\
     \tilde{x}^T \begin{bmatrix}
       \frac{1}{\lambda_1} & ..\\
       .. & \frac{1}{\lambda_n}\\
@@ -90,8 +90,8 @@
   \begin{align*}
     (\forall x \in C, \forall \theta \geq 0) \theta x \in C\\
   \end{align*}
-\item Convex Cone
-  Eg: $S^n, S^N_+$ are convex cones\\
+\item Convex Cone\\
+  Eg: $S^n, S^n_+$ are convex cones\\
   convexity check for $S^N_+$:\\
   \begin{align*}
     x_1 \in S^n_+ \implies v^Tx_1v \geq 0\\
@@ -108,11 +108,11 @@
   Definition:
   \begin{itemize}
   \item convex
-  \item closed(contains all boundary points)
+  \item closed(contains all limit points)
   \item solid(non-empty interior)
-  \item pointed(contains no line): $x \in K \implies -x \in K$
+  \item pointed(contains no line): $x \in K \implies -x \not\in K$
   \end{itemize}
-  Then the proper cone K fefines a generalized inequality ($\leq_K$) in $\R^n$
+  Then the proper cone K defines a generalized inequality ($\leq_K$) in $\R^n$
   \begin{align*}
     x \leq_K y \implies y-x \in K\\
     x <_K y \implies y-x \in int(K)
@@ -122,8 +122,8 @@
     n = 2\\
     x \leq_{R^2_+} y \implies y-x \in R^2_+
   \end{align*}
-  Cone provides partial ordering using difference of 2 objects
-  Example: $X\ leq_{S^n_+} Y \implies Y-X \in S^n_+$ (Y-X is PSD)
+  Cone provides partial ordering using difference of 2 objects.\\
+  Example: $X \leq_{S^n_+} Y \iff Y-X \in S^n_+ \iff$ Y-X is PSD
 
   \pagebreak
   
@@ -131,10 +131,10 @@
   \begin{itemize}
   \item intersection
     \begin{align*}
-      S{\alpha}\text{ is affine, convex, convex cone} \forall \alpha \in A\\
+      (\forall \alpha \in A) S_{\alpha}\text{ is affine, convex, convex cone} \implies\\
       \cap_{\alpha \in A} S_{\alpha} \text{ is affine, convex, convex cone}
     \end{align*}
-    Example:Polyhedral is the intersection of some halfspaces and hyperplanes, so it is convex.\\
+    Example: Polyhedral is the intersection of some halfspaces and hyperplanes, so it is convex.\\
     Any cloed convex set can be represented by possibly infinitely many half spaces.
   \item affine functions\\
     let $f(x)=Ax+b, f:\R^n \to \R^m$\\
@@ -152,8 +152,7 @@
     \begin{align*}
       C = \{ x : \norm{Ax+b} \leq 1 \}
     \end{align*}
-    $\{y: \norm{y} \leq 1 \}$\\
-    $y$ is an affine function of $x \implies$ C is convex\\
+    $\{y: \norm{y} \leq 1 \}$ is convex $\wedge$ $y$ is an affine function of $x \implies$ C is convex\\
   \end{itemize}
 \item Affine Functions
   $A(x)=\sum_i x_i A_i + B, A_i\in S^n, B \in S^n, x\in \R^n$\\
@@ -170,12 +169,12 @@
   \begin{itemize}
   \item Separating Hyperplanes: if $S,T \subset \R^n$ are convex and disjoint, then $\exists a \neq 0, b$ such that:\\
     \begin{align*}
-      a^Tx \geq b, forall x \in S\\
-      a^Tx \leq b, forall x \in T\\
+      a^Tx \geq b, \forall x \in S\\
+      a^Tx \leq b, \forall x \in T\\
     \end{align*}
   \end{itemize}
 \item Supporting Hyperplane:\\
-  if $S$ is convex, $\forall x_0 \in \partial S$ (boundary of S), then $\exists a \neq 0$ such that $a^Tx \leq a^Tx_0, \forallx \in S$\\
+  if $S$ is convex, $\forall x_0 \in \partial S$ (boundary of S), then $\exists a \neq 0$ such that $a^Tx \leq a^Tx_0, \forall x \in S$\\
 \end{enumerate}
 
 \end{document}

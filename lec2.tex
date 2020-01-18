@@ -66,8 +66,8 @@
 \item $A \in S_+^n$ iff all eigenvalues are non-negative\\
   proof:\\
   \begin{align*}
-    v^T A V &= v^T Q \Sigma Q^T v\\
-    v^T A V &= \tilde{v} Q \Sigma \tilde{v}=\sum \lambda_i \|v_i\|^2\\
+    v^T A v &= v^T Q \Sigma Q^T v\\
+    v^T A v &= \tilde{v} Q \Sigma \tilde{v}=\sum \lambda_i \|v_i\|^2\\
     (\forall i) \lambda_i \geq 0) & \implies (\forall v)v^T A v \geq 0
   \end{align*}
 \item for PSD matrices, we can take square root\\
@@ -80,9 +80,9 @@
   $f(x)=log(det X)$\\
   \begin{align*}
     f(X+\delta X) &= logdet(X+\delta X)\\
-                  &= logdet(X^{\frac{1}{2}}(I+X^{-\frac{1}{2}}) \delta X X^{-\frac{1}{2}})X^{\frac{1}{2}})\\
-                  &= logdet(X)+logdet(I+X^{\frac{1}{2}} \delta X X^{-\frac{1}{2}})\\
-                  & \text{let } M = X^{\frac{1}{2}} \delta X X^{-\frac{1}{2}}\\
+                  &= logdet((X^{\frac{1}{2}}(I+X^{-\frac{1}{2}}) \delta X X^{-\frac{1}{2}})X^{\frac{1}{2}})\\
+                  &= logdet(X)+logdet(I+X^{-\frac{1}{2}} \delta X X^{-\frac{1}{2}})\\
+                  & \text{let } M = X^{-\frac{1}{2}} \delta X X^{-\frac{1}{2}}\\
                   &= logdet(X)+logdet(I+M)
   \end{align*}
   claim eigenvalues of $I+M$: $1+\lambda_i$
@@ -92,9 +92,9 @@
     det(M)&=\prod_i(1+\lambda_i)\\
     f(X+\delta X) &= logdet(X) + log \prod_i(1+\lambda_i)\\
          &= logdet(X) + \sum_i log(1+\lambda_i)\\
-         &\approx logdet(X) + \sum_i \lambda_i\\
+         &\approx logdet(X) + \sum_i \lambda_i \text{ since } \delta X \text{ is small}\\
          &\approx logdet(X) + trace(X^{-\frac{1}{2}} \delta X X^{\frac{1}{2}})\\
-         &\approx logdet(X) + trace(X^{-1} \delta X)\\
+         &\approx logdet(X) + trace(X^{-1} \delta X) \text{ cyclic property of trace}\\
     trace(X^{-1} \delta X) &= <X^{-T},\delta X>\\
     f(X+\delta X) &= f(X) + <\nabla f(X), \delta X> \implies \nabla f(X) = X^{-1}\\
     logdet(X) &= log(X) \implies f'(X)=\frac{1}{X}
@@ -123,7 +123,7 @@
     g'(x)&=\frac{-1}{X^2} = -X^{-2}
   \end{align*}
 \item convex sets\\
-  affine sets: a set $C \subseteq \R^n$ is affine if $(\forall x_1, x_2 \leq C)(\forall \theta \in \R) \implies \theta x_1 +(1-\theta) x_2 \in C$\\
+  affine sets: a set $C \subseteq \R^n$ is affine if $(\forall x_1, x_2 \in C)(\forall \theta \in \R) \implies \theta x_1 +(1-\theta) x_2 \in C$\\
   can use this definition to check sets for convexity property\\
   eg: set of solution to a set of linear equations is affine\\
   affine combination: $\sum_i \theta_i x_i, \forall \theta_i \in \R, \sum_i \theta_i = 1$\\
