@@ -1,0 +1,138 @@
+\documentclass[12pt,letter]{article}
+
+%% \usepackage[fleqn]{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsfonts,amsthm,bm}
+\usepackage{breqn}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{algorithm2e}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{subcaption}
+%% \usepackage{datetime}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{parskip} %turns off paragraph indent
+\pagestyle{fancy}
+
+\usetikzlibrary{arrows}
+
+\DeclareMathOperator*{\argmin}{argmin}
+\newcommand*{\argminl}{\argmin\limits}
+
+\newcommand{\mathleft}{\@fleqntrue\@mathmargin0pt}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}} 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\norm}[1]{\|#1\|}
+\newcommand{\set}[1]{\{#1\}}
+\setcounter{MaxMatrixCols}{20}
+
+% remove excess vertical space for align equations
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+\begin {document}
+
+\lhead{Notes - Convex Optimization, 2020/01/22}
+
+\begin{enumerate}
+\item Convex Functions\\
+  Definition: convex function:
+  \begin{align*}
+    f(\theta x +(1-\theta) y) \leq \theta f(x) + (1-\theta) f(y), \forall \theta = [0,1]\\
+  \end{align*}
+  strict version:\\
+  \begin{align*}
+    f(\theta x +(1-\theta) y) < \theta f(x) + (1-\theta) f(y), \forall \theta = (0,1)\\
+  \end{align*}
+  chord lies above the function\\
+  Definition concave function:
+  \begin{align*}
+    f(\theta x +(1-\theta) y) \geq \theta f(x) + (1-\theta) f(y)\\
+  \end{align*}
+  chord lies below the function\\
+  For convenience we sometimes define an extended value function:\\
+  \begin{align*}
+    \tilde{f}(x) = \begin{cases}
+      f(x), & x \in dom(f)\\
+      \infty, & other\ wise\\
+    \end{cases}\\
+  \end{align*}
+  if $f(x)$ convex, then $\tilde{f}$ is also convex\\
+\item examples:\\
+  linear and affine functions are both convex and concave\\
+  $\frac{1}{x}$ neither convex nor concave on domain of $\R$\\
+  $\norm{*}$ on $\R^n$ is convex
+\item sublevel set of a function
+  \begin{align*}
+    C(\alpha) = \set{ x \in dom(f): f(x) \leq \alpha}
+  \end{align*}
+  For convex function, all sublevel sets are convex ($\forall \alpha$). Converse is not true.\\
+\item quasi-convex function: if its sublevel sets are all convex
+\item epigraph of functions: $epi(f)=\set{(x,t): x \in dom(f), f(x) \leq t} \in \R^{n+1}, f \in \R^n \to \R$\\
+  the set of space above the function\\
+  $f$ is convex function $\iff epi(f)$ is convex set\\
+\item differentiable convex function\\
+  Sirst order condition:  suppose f is differentiable and domain of f is convex. Then:\\
+  f is convex $\iff (\forall x,x_0 \in dom(f)) f(x) \geq f(x_0) + \nabla f(x_0)^T(x-x_0)$\\
+  $f(x) + \nabla f(x_0)^T(x-x_0)$ is the 1st order approximation\\
+  the local information $(f(x),\nabla f(x_0))$ fives global information about the function (global underestimator)\\
+
+  rough proof:\\
+  suppose $f(x)$ is convex but $(\exists x, x_0) f(x) < f(x) + \nabla f(x_0)^T(x-x_0)$\\
+  then this means the function should bend across the tangent line which violates the convexity\\
+  
+  proof for converse direction:\\
+  suppose that $(\exists x, x_0) f(x) \geq f(x) + \nabla f(x_0)^T(x-x_0)$\\
+  to show that $f(x)$ is convex lets take $x,y \in dom(f), z= \theta x + (1-\theta)y$\\
+  for $x,z$: $f(x) + \nabla f(z)^T(x-z)$\\
+  for $y,z$: $f(y) + \nabla f(z)^T(x-y)$\\
+  $\theta f(x) + (1-\theta) f(y) \geq f(z) + \nabla f(z)^T(\theta x - \theta z + (1-\theta)y - (1-\theta)z)$\\
+  $\theta f(x) + (1-\theta) f(y) \geq f(\theta x +(1-\theta)y)$\\
+  $f(x)$ is convex
+\item second order condition: suppose $f$ is twice differentiable and $dom(f)$ is convex, \\
+  then $f(x)$ is convex $\iff \nabla^2 f(x) \geq 0 $ (PSD, eg: wrt. $S_+^n$)\\
+  
+  proof for scalar case:\\
+  suppose that $f(x)$ is convex, then the first-order condition holds\\
+  for $x,y \in dom(f): f(x) \geq f(y) + f'(y)(x-y)$\\
+  for $y,x \in dom(f): f(y) \geq f(x) + f'(x)(y-x)$\\
+  $f'(x)(y-x) \leq f(y)-f(x) \leq f'(y)(y-x)$\\
+  $f'(x)(y-x) \leq f'(y)(y-x) \implies 0 \leq (y-x)(f'(x)-f'(y))$\\
+  % $\frac{x}{(y-x)^2} \implies 0 \leq \frac{f;(y)-f'(x)}{(y-x)}$
+  take $y\to x: 0 \leq f''(x)$\\
+  $f''(x) \geq \frac{f'(x+\delta x)-f'(x)}{]delta x}$\\
+
+  conversely, suppose that $f'(z) \geq 0, \forall z \in dom(f)$, take $x,y \in dom(f)$ WLOG $x < y$\\
+  $\int_x^y f''(z)(y-z) dz \geq 0$\\
+  $f''(z) \geq 0, (y-z) \geq 0 = I_1+I_2$\\
+  $I_1 = \int_x^y f''(z)y dz- y f'(z)|_x^y = y(f'(y)-f'(x))$\\
+  $I_2 = -\int_x^y f''(z) dz$\\
+  $dv=f''(z) dz \implies v = f''(z)$\\
+  $u=z\implies du = dz$\\
+  $I_2 = -z f'(z)|_x^y + \int_x^y f(z) dz = -y f'(y) + x f'(x)+f(y)-f(x)$\\
+  $I_1+I_2=y f'(y)-y f'(x)-y f'(y) + x f'(x) + f(y)-f(x) \geq 0$\\
+  $\implies f(y) \geq f(x) + f'(x)(y-x)$ first order condition: $x<y$\\
+  first order condition holds $\implies f(x)$ convex\\
+
+\item basic properties of convex functions:
+  \begin{enumerate}
+  \item $f(x)$ is convex $\implies (\exists \alpha) \alpha f(x)$ is convex
+  \item $f_1,..f_n$ convex $\implies f_1+...f_n$ is convex
+  \item if $f(x)$ is convex $\implies \forall g(x)$ affine, $f(g(x))$ is convex\\
+    eg: $f(x) = \|Ax+b\|$ is convex. $f(y)=\norm{y}$ is convex
+  \item $f_1,..f_n$ convex $\implies max\set{f_1+...f_n}$ is convex
+  \end{enumerate}
+\end{enumerate}
+
+\end{document}
+
+  
