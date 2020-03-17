@@ -29,7 +29,7 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}} 
 \newcommand{\N}{\mathbb{N}}
-\newcommand{\norm}[1]{\{#1\}}
+\newcommand{\norm}[1]{\|#1\|}
 \newcommand{\ppartial}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\set}[1]{\{#1\}}
 
@@ -62,6 +62,10 @@
   $S_++^n \equiv$ set of all symmetric positive definite matrices (SPD)\\
   
   $cl(X) \equiv$ closure of $X$\\
+
+  $relint(X) \equiv$ relative interior of $X$\\
+  
+  $int(X) \equiv$ interior of $X$\\
   
   \vfill\null
   \columnbreak
@@ -294,6 +298,10 @@
   \begin{itemize}
   \item Affine
   \item Pointwise supremum of convex function
+    \begin{itemize}
+    \item distance to farthest point in a set
+    \item support function of set
+    \end{itemize}
   \item Norm
   \item Non-negative weighted sum of convex functions
   \end{itemize}
@@ -409,7 +417,40 @@
     $\{y: \norm{y} \leq 1 \}$ is convex $\wedge$ $y$ is an affine function of $x \implies$ C is convex\\
 
   \vfill\null
-  \vfill\null  
+  \pagebreak
+
+  \section{Constraint Qualifications}
+
+  \subsection{Slater's Constraint Qual.}
+  Optimal solution is in relative interior: $x^* \in relint(S)$\\
+  
+  Inequalities $(\forall i)f_i(x)$ convex $\wedge\ f_i(x)<0 \implies$ Slater's constraint satisfied.\\
+  
+  Inequalities $(\forall i)f_i(x)$ affine $\implies (\forall i)f_i(x) \leq 0 \wedge (\exists i) f_i(x) < 0 \implies$ Slater's constraint satisfied.\\
+  
+  Achieving Slater's constraint implies 0 duality gap.
+  \subsection{KKT}
+  Assumes optimality achieved with 0 duality gap: $\nabla L(x^*,\lambda^*,v^*)=0$
+  \begin{align*}
+    &L(x^*,\lambda^*,v^*) = f_0(x^*) + \sum_i \lambda_i^* f_i(x^*) + \sum_i v_i h_i(x^*)\\
+    &\nabla L(x^*,\lambda^*,v^*) = \nabla f_0(x^*) + \sum_i \lambda_i^* \nabla f_i(x^*) + \sum_i v_i \nabla h_i(x^*)
+  \end{align*}
+  We have the constraints:
+  \begin{align*}
+    &f_i(x^*) \leq 0\\
+    &\lambda_i^* \geq 0\\
+    &h_i(x^*)=0\\
+    &\lambda_i^* f_i(x^*)=0\\
+    &\nabla L(x^*,\lambda^*,v^*) = \nabla f_0(x^*) + \sum_i \lambda_i^* \nabla f_i(x^*) + \sum_i v_i \nabla h_i(x^*)
+  \end{align*}
+
+  Primal inequality constraints convex and equality constraints affine and KKT satisfied $\implies$ 0 duality gap with specified points for primal and dual. (sufficient).\\
+
+  If Slater's constraint satisfied then the above is sufficient and necessary:\\
+  Primal inequality constraints convex and equality constraints affine and KKT satisfied $\iff$ 0 duality gap with specified points for primal and dual.\\
+  
+  \vfill\null
+  
   \pagebreak
   
   \section{Definitions}
@@ -482,12 +523,25 @@
 
   \vfill\null
   \columnbreak
-    
+
+  \subsection{Inequalities}
+  $x \preceq_K y \iff y-x \in K$\\
+  
+  $x$ is a minimum in $S$ wrt. cone $K$:
+  \begin{align*}
+    &x \in S: (\forall y \in S)f(y) \succeq_K f(x) \iff f(y)-f(x) \in S\\
+    &S \subseteq x+K
+  \end{align*}
+  $x$ is a minimal in $S$ wrt. cone $K$:
+  \begin{align*}
+    &x \in S: (\forall y \in S)f(y) \preceq_K f(x) \implies x = y\\
+    &x \in S: (\forall y \in S) f(x)-f(y) \in K \implies x = y\\
+    &(x-K) \cap S = \set{x}
+  \end{align*}
   \subsection{Cone}
   \begin{align*}
-    (\forall x \in C, \forall \theta \geq 0) \theta x \in C\\
+    (\forall x \in C, \forall \theta \geq 0) \theta x \in C
   \end{align*}
-  
   \subsection{Convex Cone}
   Eg: $S^n, S^n_+$ are convex cones\\
   convexity check for $S^N_+$:\\
@@ -529,7 +583,7 @@
     K=\set{(x,t) \in \R^{n+1} : \norm{x} \leq t}, x \in \R^n
   \end{align*}
   
-  \subsection{dual norm}
+  \subsection{Dual norm}
   $\|z\|_* := \sup_x \{z^T x : \|x\|_p \leq 1\}$\\
   
   Dual of L1-norm:\\
@@ -561,9 +615,6 @@
   \subsection{Operator norm}
   $\norm{X}_{a,b}=sup\{\norm{Xu}_a : \norm{u}_b \leq 1 \}, X \in \R^{m\times n}$
   
-  \vfill\null
-  \columnbreak
-  
   \subsection{Dual cone}
   \begin{align*}
     K\ is\ a\ cone\\
@@ -571,22 +622,28 @@
   \end{align*}
 
   \subsection{Dual norm cone}
-  $\norm{u}_* = sup \set{ u^Tx: \norm{x} \leq 1}$\\
 
-  interpreted as norm of $u^T$\\
-  from dual norm definition:\\
-  $z^T x \leq \norm{x} \norm{z}_*$\\
-  can be tightened: given x, $(\exists z) z^T x = \norm{x} \norm{z}_*$\\
-  given z, $(\exists x) z^T x = \norm{x} \norm{z}_*$\\
+  \begin{align*}
+    K^* = \set{(u,v): \norm{u}_* \leq v}\\
+    where\ K = \set{(x,t): \norm{x} \leq t}
+  \end{align*}
+  
+  % $\norm{u}_* = sup \set{ u^Tx: \norm{x} \leq 1}$\\
+    
+  % interpreted as norm of $u^T$\\
+  % from dual norm definition:\\
+  % $z^T x \leq \norm{x} \norm{z}_*$\\
+  % can be tightened: given x, $(\exists z) z^T x = \norm{x} \norm{z}_*$\\
+  % given z, $(\exists x) z^T x = \norm{x} \norm{z}_*$\\
   
   \subsection{support function of a set}
-  todo
+  \begin{align*}
+    S_C(x) = \sup \set{x^T y : y \in C}\\
+    dom(S_C) = \set{x: \sup_{y\in C} c^Ty < \infty}
+  \end{align*}
+  It is pointwise supremum of convex function, so it is convex.
   
   \vfill\null
-  \columnbreak
-
-  \vfill\null
-  \columnbreak
     
   \pagebreak
   
