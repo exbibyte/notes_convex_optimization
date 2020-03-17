@@ -1,3 +1,4 @@
 # notes_convex_optimization
 
-personal notes for convex optimization (ECE1505)
+	Notes for convex optimization course (ECE1505) and the related book by Boyd and Vandenberghe.
+
