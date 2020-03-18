@@ -646,6 +646,41 @@
   \vfill\null
     
   \pagebreak
+
+  \section{Regularized Approximation}
+
+  Noise sensitivity of different objectives:
+  \begin{itemize}
+  \item robust least squares / Huber penalty
+  \item log barrier
+  \item deadzone linear
+  \item quadratic
+  \end{itemize}
+
+  Least norm problems
+  \begin{itemize}
+  \item L2 norm objective with equality constraint
+  \item sparsity inducing norms (eg: L1)
+  \item norm ball constraint
+  \item probability distribution
+    \begin{itemize}
+    \item convex comb. of columns of A to fit b
+    \end{itemize}
+  \item variable constraints
+    \begin{itemize}
+    \item box
+    \item one sidded bound
+    \end{itemize}
+  \end{itemize}
+
+  Multicriterion Formulation\\
+
+  Tikhonov Regularization\\
+  todo..
+  
+  \vfill\null
+  
+  \pagebreak
   
   \section{Appendix}
 
@@ -694,7 +729,42 @@
   \section{Miscellaneuous Properties}
   $(a+x)^{-1} \approx 1-x$\\
   $\lim_{t \to 0} \frac{f(x+\epsilon t) - f(x)}{t} = \ppartial{f(x)}{x} \epsilon$\\
-  
+
+  \subsection{Pseudo-inverse}
+  Overconstrained case:\\
+  Cast as L2 norm approximation problem
+  \begin{align*}
+    &\min_x \norm{Ax-b}_2^2
+  \end{align*}
+  \begin{align*}
+    &(Ax-b)^T(Ax-b)=x^TA^TAx -2x^TA^Tb +b^Tb\\
+    &\frac{\partial}{\partial x}(x^TA^TAx -2x^TA^Tb +b^Tb)=2A^T Ax - 2A^Tb\\
+    &x = (A^T A)^{-1} A^Tb\\
+  \end{align*}
+  Underconstrained case:\\
+  Cast as a least-norm problem w/ equality constraint
+  \begin{align*}
+    &\min_x \norm{x}_2^2\\
+    &s.t.:\ Ax=b
+  \end{align*}
+  \begin{align*}
+    &\min_x L(x,\lambda,v) = x^Tx -v^T(Ax-b)\\
+    &\ppartial{(x^Tx -v^T(Ax-b))}{x} = 2x-A^Tv=0\\
+    &x=-\frac{1}{2} A^Tv\\
+    &g(\lambda,v) = [x^Tx -v^T(Ax-b)]_{x=-\frac{1}{2} A^Tv}\\
+    &g(\lambda,v) = -\frac{1}{4}v^TAA^Tv - v^Tb\\
+    &dual:\ \max_{\lambda,v} g(\lambda,v)=-\min_{\lambda,v} g(\lambda,v)\\
+    &\ppartial{(\frac{1}{4}v^TAA^Tv + v^Tb)}{v}=0\\
+    &v=\frac{1}{2}AA^Tv+b=0\\
+    &v=-2(AA)^{-1}b\\
+    &x=-\frac{1}{2} A^Tv|_{v=-2(AA)^{-1}b}= A^T(AA^T)^{-1}b\\
+    % &b=A(x+x'), \forall x' \in Nullspace(A)\\
+    % &x^*=A^T(AA^T)^{-1}Y \implies Ax^* = AA^T(AA^T)^{-1}Y\\
+    % &check:\\
+    % &(x-x^*) \perp x^*, \forall x \in x_0 + Nullspace(A)\\
+    % &(x-x^*)^Tx^* = (x-x^*)^TA^T(AA^T)^{-1}Y\\
+    % &(A(x-x^*))^T(AA^T)^{-1}Y = 0\\
+  \end{align*}  
 \end{multicols*}
 
 \end {document}
