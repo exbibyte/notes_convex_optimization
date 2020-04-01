@@ -7,7 +7,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{tikz}
-\usepackage{algorithm2e}
+\usepackage[ruled,vlined,linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
 \usepackage{siunitx}
 \usepackage{graphicx}
 \usepackage{subcaption}
@@ -680,6 +680,164 @@
   
   \vfill\null
   
+  \pagebreak
+
+  \section{Descent Methods}
+
+  \begin{algorithm}[H]
+    init $x_0 \in dom f$\;
+    \While{stopping criterion is not satisfied}{
+      $\Delta x \leftarrow$ Compute Descent Direction\;
+      $t \leftarrow$ Compute Descent Step Size\;
+      $x_{k+1} \leftarrow x_k + t \Delta x$
+    }
+    \caption{Descent Overview\label{Descent}}
+  \end{algorithm}
+  
+  \subsection{Search Step Size}
+  Given $\Delta x$, step direction\\
+  
+  Exact Line Search: $t = \argmin_{s\geq 0} f(x+s \Delta x)$\\
+
+  \begin{algorithm}[H]
+    \SetKwInOut{Input}{$\Delta x$}\SetKwInOut{Output}{t}
+    \Input{Search direction}
+    \Output{Step size}
+    $\alpha \in (0,0.5)$\;
+    $\beta \in (0,1)$\;
+    $t \leftarrow$ 1\;
+    \While{$f(x+ t \Delta x > f(x) + \alpha t \nabla f(x)^T \Delta x$}{
+      $t \leftarrow \beta t$\;
+    }
+    \caption{Backtracking Line Search\label{LS_BT}}
+  \end{algorithm}
+
+  \vfill\null
+  \columnbreak
+  
+  \subsection{Search Direction - 1st Order Methods}\\
+  Steepest Descent
+  \begin{align*}
+    % f(x+\Delta x) \geq f(x) + \nabla f(x)^T \Delta x\\
+    &\argmin_{\Delta x} f(x) + \nabla f(x)^T \Delta x_{sd}\\
+    &\argmin_{\Delta x} \nabla f(x)^T \Delta x_{sd}
+  \end{align*}
+  Normalized Steepest Descent
+  \begin{align*}
+    &\Delta x_{nsd} = \argmin_{v} \set{ \nabla f(x)^T v : \norm{v} \leq 1 }\\
+    &\Delta x_{nsd} = \frac{\Delta x_{sd}}{\norm{\nabla f(x)}}_*\\
+    &\norm{\nabla f(x)}_* = \sup_y \{\nabla f(x)^T y: \|y\| \leq 1 \}\ (dual norm)\\
+    &\nabla f(x)^T \Delta x_{sd} = \nabla f(x)^T \Delta x_{nsd} \norm{\nabla f(x)}_* = \norm{\nabla f(x)}_*^2
+  \end{align*}
+
+  Steepest Descent for L2-Norm
+  \begin{align*}
+    &\Delta x = -\nabla f(x)\\
+    &\Delta x_{nsd} = \frac{-\nabla f(x)}{\norm{\nabla f(x)}}_*\\
+  \end{align*}
+  
+  Steepest Descent for Quadratic Norm
+  \begin{align*}
+    &\norm{z}_P = (z^TPz)^{\frac{1}{2}} = \norm{P^{\frac{1}{2}}z}_2, P \in S_{++}^n\\
+    &\Delta x_{nsd} = -(\nabla f(x)^T P^{-1} \nabla f(x))^{-\frac{1}{2}} P^{-1} \nabla f(x)\\
+    &\Delta x_{sd} = -P^{-1} \nabla f(x)
+  \end{align*}
+
+  Normalized Steepest Descent for L1-norm
+  \begin{align*}
+    &\Delta x_{nsd} = \argmin_{v} \set{ \nabla f(x)^T v : \norm{v}_1 \leq 1 }\\
+    &\Delta x_{nsd} = - sign (\frac{\partial f(x)}{\partial x_i})\ e_i, i: \norm{\nalfa f(x)}_{\infty} = |(\nabla f(x))_i|
+  \end{align*}
+  \vfill\null  
+  \pagebreak
+  
+  \subsubsection{Search Direction - 2nd Order Methods}\\
+  Newton's Method
+  \begin{align*}
+    &\Delta x_{nt} = - \nabla^2 f(x)^{-1} \nabla f(x)\\
+    &\nabla^2 f(x)^{-1} \succ 0 \implies\\
+    &\nabla f(x)^T \Delta x_{nt} = - \nabla f(x)^T \nabla^2 f(x)^{-1} \nabla f(x) < 0
+  \end{align*}
+  Affine invariance of Newton's method: auto-scaling of level curves to enable better descent direction\\
+  
+  2nd order Taylor approximation of function is minimized with $\Delta x_{nt}$, so quadratic model gives good approximation near minimizer.\\
+
+  Newton Decrement: used for convergence/stopping criterion
+  \begin{align*}
+    &\lambda(x) = (\nabla f(x)^T \nabla^2 f(x) ^{-1} \nabla f(x))^{\frac{1}{2}}\\
+    &\frac{1}{2}\lambda(x)^2 \approx f(x) -p^*\\
+    &\nabla f(x)^T \Delta x_{nt} = - \nabla f(x)^T \nabla^2 f(x)^{-1} \nabla f(x)\\
+    &\nabla f(x)^T \Delta x_{nt} = -\lambda(x)^2 = \frac{d}{dt}f(x+\Delta x_{nt}t)|_{t=0}
+  \end{align*}
+  
+  \begin{algorithm}[H]
+    init $x_0 \in dom f$\;
+    $\Delta x_{nt} \leftarrow -\nabla^2 f(x)^{-1} \nabla f(x)$\;
+    $\lambda(x)^2 \leftarrow \nabla f(x)^T \nabla^2 f(x)^{-1} \nabla f(x)$\;
+    \While{$\frac{1}{2}\lambda(x)^2>\epsilon$}{
+      $t \leftarrow$ Compute Step Size (line search)\;
+      $x_{k+1} \leftarrow x_k + t \Delta x_{nt}$
+    }
+    \caption{Newton Method Descent\label{NewtonMethod}}
+  \end{algorithm}
+
+  Convergence: split into damped phase and quadratically convergent phase. Fast convergence once step size is 1.
+
+  \vfill\null
+  \columnbreak
+
+  BFGS: a Quasi-newton method\\
+  Direction:
+  \begin{align*}
+    p_k = -B_k^{-1} \nabla f_k
+  \end{align*}
+  Properties for $B$:\\
+  $B \succ 0$\\
+  $B=B^T$\\
+  Satisfaction of Secant equation:
+  \begin{align*}
+    &B_{k+1} (x_{k+1}-x_k) = \nabla f_{k+1} - \nabla f_K\\
+    &B_{k+1} s_k = y_k
+  \end{align*}
+  Curvature condition:
+  \begin{align*}
+    &B_{k+1} s_k = y_k\\
+    &s_k^T B_{k+1} s_k = s_k^T y_k\\
+    &B_{k+1} \succ 0 \implies s_k^T y_k > 0
+  \end{align*}
+  This need to be enforced if doing optimization on a non-convex function\\
+
+  General problem of find $B$
+  \begin{align*}
+    &\min_B \norm{B-B_k}\\
+    &s.t.\ B=B^T, B s-K = y_k
+  \end{align*}
+  
+  BFGS Update:
+  $B_{k+1}=B_{k}+{\frac {\mathbf {y} _{k}\mathbf {y} _{k}^{\mathrm {T} }}{\mathbf {y} _{k}^{\mathrm {T} }\mathbf {s} _{k}}}-{\frac {B_{k}\mathbf {s} _{k}\mathbf {s} _{k}^{\mathrm {T} }B_{k}^{\mathrm {T} }}{\mathbf {s} _{k}^{\mathrm {T} }B_{k}\mathbf {s} _{k}}}$
+
+  \begin{algorithm}[H]
+    init $x_0 \in dom f$\\
+    init $B_{0}$ (eg: $I$)\\
+    \While{$\norm{y_k}>\epsilon$}{
+    solve for $p_k$ in $B_{k} p_k = -\nabla f(x_k)$\\
+    $t \leftarrow \argmin_s f(x_k + s p_k)$(or backtrack search)\\
+    $s_k \leftarrow t p_k$\\
+    $x_{k+1} \leftarrow x_k + s_k$\\
+    $y_k = f(x_{k+1}) - f(x_k)$\\
+    $B_{k+1}=B_{k}+{\frac {\mathbf {y} _{k}\mathbf {y} _{k}^{\mathrm {T} }}{\mathbf {y} _{k}^{\mathrm {T} }\mathbf {s} _{k}}}-{\frac {B_{k}\mathbf {s} _{k}\mathbf {s} _{k}^{\mathrm {T} }B_{k}^{\mathrm {T} }}{\mathbf {s} _{k}^{\mathrm {T} }B_{k}\mathbf {s} _{k}}}$
+    }
+    \caption{BFGS Descent\label{BFGS}}
+  \end{algorithm}
+
+  Inversion of $B$ via Sherman-Morrison:\\
+  ${\displaystyle B_{k+1}^{-1}=\left(I-{\frac {\mathbf {s} _{k}\mathbf {y} _{k}^{T}}{\mathbf {y} _{k}^{T}\mathbf {s} _{k}}}\right)B_{k}^{-1}\left(I-{\frac {\mathbf {y} _{k}\mathbf {s} _{k}^{T}}{\mathbf {y} _{k}^{T}\mathbf {s} _{k}}}\right)+{\frac {\mathbf {s} _{k}\mathbf {s} _{k}^{T}}{\mathbf {y} _{k}^{T}\mathbf {s} _{k}}}.}$
+
+  Sherman-Morrison:\\
+  $A^{-1}$ exists: $(A+uv^T)^{-1}$ exists $\iff 1+v^TA^{-1}u \not=0$\\
+  $(A+uv^T)^{-1}=A^{-1} - \frac{A^{-1}uv^T A^{-1}}{1+v^TA^{-1}u}$\\
+  
+  \vfill\null
   \pagebreak
   
   \section{Appendix}
