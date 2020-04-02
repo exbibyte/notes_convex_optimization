@@ -45,6 +45,9 @@
 
 \usepackage[tiny]{titlesec}
 
+\SetKwRepeat{Do}{do}{while}
+\SetKwFor{While}{while}{}{end while}%
+
 \begin{document}
 
 \lhead{Notebook - Convex Optimization}
@@ -782,9 +785,9 @@
   
   \begin{algorithm}[H]
     init $x_0 \in dom f$\;
-    $\Delta x_{nt} \leftarrow -\nabla^2 f(x)^{-1} \nabla f(x)$\;
-    $\lambda(x)^2 \leftarrow \nabla f(x)^T \nabla^2 f(x)^{-1} \nabla f(x)$\;
-    \While{$\frac{1}{2}\lambda(x)^2>\epsilon$}{
+    \Do{$\frac{1}{2}\lambda(x)^2>\epsilon$}{
+      $\Delta x_{nt} \leftarrow -\nabla^2 f(x)^{-1} \nabla f(x)$\;
+      $\lambda(x)^2 \leftarrow \nabla f(x)^T \nabla^2 f(x)^{-1} \nabla f(x)$\;
       $t \leftarrow$ Compute Step Size (line search)\;
       $x_{k+1} \leftarrow x_k + t \Delta x_{nt}$
     }
@@ -850,17 +853,14 @@
   
   \vfill\null
   \pagebreak
-
   \section{Equality Constrained Optimization}
   Approaches:
   \begin{itemize}
-  \item elimination of equality constraint, variable substitution into objective\\
-    Solve remaining unconstrained problem.
-  \item dual method: solve equality constrained primal using dual formulation
-  \item modified Newton's Method with equality constraint handling
-  \end{itemize}
-
-  Solve via KKT condition at optimality:
+  \item elimination of equality constraint, variable substitution into objective, unconstrained opt.
+  \item Newton's Method with equality constraint, and assumed feasible start, unconstrained opt.
+  \item Newton's Method with equality constraint,\\ infeasible start,\\ equivalence using primal-dual residual method
+  \end{itemize}  
+  KKT optimality, with x assumed to be feasible:
   \begin{align*}
     &\Delta x = \argmin_v f(x) + \nabla f(x)^T v + \frac{1}{2} v^T \nabla^2 f(x) v\\
     &s.t.\ A(x+v)=b\\
@@ -895,7 +895,8 @@
       \end{bmatrix}, K^{-1}\ exists\\
     &\Delta x = v
   \end{align*}
-  Solve via elimination
+  
+  Alternatively Solve via elimination
   \begin{align*}
     &\nabla f(x) + \nabla^2 f(x) v + A^T w = 0\\
     &v + \nabla^2 f(x)^{-1} A^T w + \nabla^2 f(x)^{-1} \nabla f(x)=0\\
@@ -927,9 +928,9 @@
   
   \begin{algorithm}[H]
     init $x_0 \in dom f, Ax_0=b$\;
-    $\Delta x_{nt} \leftarrow$ Solve KKT System / Elimination\;
-    $\lambda(x)^2 \leftarrow \Delta x_{nt}^T \nabla^2 f(x)^{-1} \Delta x_{nt}$\;
-    \While{$\frac{1}{2}\lambda(x)^2>\epsilon$}{
+    \Do{$\frac{1}{2}\lambda(x)^2>\epsilon$}{
+      $\Delta x_{nt} \leftarrow$ Solve KKT System / Elimination\;
+      $\lambda(x)^2 \leftarrow \Delta x_{nt}^T \nabla^2 f(x)^{-1} \Delta x_{nt}$\;
       $t \leftarrow$ Compute Step Size (eg: backtrack)\;
       $x_{k+1} \leftarrow x_k + t \Delta x_{nt}$
     }
@@ -937,8 +938,379 @@
   \end{algorithm}
 
   \subsection{Infeasible Start Newton Method}
-  Modified Newton's Method with equality contraint handling
+  Modify KKT system for residual: $Av=b-Ax$
+  \begin{align*}
+    &\begin{bmatrix}
+      \nabla^2 f(x) & A^T \\
+      A & 0 
+    \end{bmatrix}
+          \begin{bmatrix}
+            v\\ w
+          \end{bmatrix}=
+    K
+    \begin{bmatrix}
+      v\\ w
+    \end{bmatrix} =
+    \begin{bmatrix}
+      -\nabla f(x)\\
+      b-Ax
+    \end{bmatrix}
+  \end{align*}
+  Once step length becomes 1, all following iterates are feasible.\\
 
+  Equivalence with Primal-Dual residual update:
+  \begin{align*}
+    &\min_x f(x), s.t.\ Ax=b
+  \end{align*}
+  Dual:
+  \begin{align*}
+    &L(x,v) = f(x) + v^T(Ax-b)\\
+    &s.t.\ Ax-b=0\\
+    &optimality:\\
+    &\frac{\partial L}{\partial v} = \nabla f(x) + A^Tv = 0
+  \end{align*}
+  residual of primal and dual:
+  \begin{align*}
+    r=\begin{bmatrix}
+      r_{dual}\\
+      r_{pri}
+    \end{bmatrix}
+    =\begin{bmatrix}
+      \nabla f(x) + A^Tv\\
+      Ax-b
+    \end{bmatrix}
+  \end{align*}
+  \begin{align*}
+    &y =
+    \begin{bmatrix}
+      x\\ v
+    \end{bmatrix}\\
+    &\Delta y =
+    \begin{bmatrix}
+      \Delta x\\ \Delta v
+    \end{bmatrix}\\
+    &r(y+\Delta y) \approx r(y) + Dr(y) \Delta y\\
+    &Dr(y):=Gradient\ of\ r(y)\\
+    &Dr(y) =
+      \begin{bmatrix}
+        \nabla_x r_{dual}^T & \nabla_v r_{dual}^T\\
+        \nabla_x r_{pri}^T & \nabla_v r_{pri}^T
+      \end{bmatrix}\\
+    &Dr(y) =
+      \begin{bmatrix}
+        \nabla^2 f(x) & A^T\\
+        A & 0
+      \end{bmatrix}                             
+  \end{align*}
+  goal: $r(y+\Delta y) \to 0$
+  \vfill\null
+  \pagebreak
+  \begin{align*}
+    &r(y) + Dr(y) \Delta y = 0\\
+    &\begin{bmatrix}
+      \nabla f(x) + A^Tv\\
+      Ax-b
+    \end{bmatrix} + 
+    \begin{bmatrix}
+        \nabla^2 f(x) & A^T\\
+        A & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+      \Delta x\\ \Delta v
+    \end{bmatrix} = 0\\
+    &\begin{bmatrix}
+        \nabla^2 f(x) & A^T\\
+        A & 0
+    \end{bmatrix}
+    \begin{bmatrix}
+      \Delta x\\ \Delta v
+    \end{bmatrix} =
+    \begin{bmatrix}
+      -\nabla f(x) - A^Tv\\
+      b-Ax
+    \end{bmatrix}
+  \end{align*}
+  comparison with defintion of infeasible start Newton Method:
+  \begin{align*}
+    &\begin{bmatrix}
+      \nabla^2 f(x) & A^T \\
+      A & 0 
+    \end{bmatrix}
+          \begin{bmatrix}
+            v\\ w
+          \end{bmatrix}=
+    \begin{bmatrix}
+      -\nabla f(x)\\
+      b-Ax
+    \end{bmatrix}
+  \end{align*}
+  Equivalence if for infeasible start, we select:
+  \begin{align*}
+    &v = \Delta x\\
+    &A^T(\Delta v + v) = A^T w = 0\\
+    &w = v + \Delta v
+  \end{align*}
+  Solving using primal-dual formulation, obtain $\Delta v, \Delta x$\\
+  Backtrack line search using $\norm{r}$ instead of $f$\\
+
+  \begin{algorithm}[H]
+    init $x_0 \in dom f$\\
+    $\beta \in (0,1)$\\
+    $\alpha \in (0,0.5)$\\
+    \Do{$\norm{r(x,v)}>\epsilon \vee Ax \not=b$}{
+      $\Delta v, \Delta x \leftarrow$ Solve primal-dual KKT system\\
+      Backtrack Step Size Search with $\norm{r}$:\\
+      $t \leftarrow 1$\\
+      \While{$\norm{r(x+ t \Delta x, v + t \Delta v)}>(1-\alpha t)\norm{r()x,v}$}{
+        $t \leftarrow \beta t$\\
+      }
+      $x_{k+1} \leftarrow x_k + t \Delta x$\\
+      $v_{k+1} \leftarrow v_k + t \Delta v$\\
+    }
+    \caption{Newton Method w/ \\Infeasible Start\label{NewtonMethodInfeasibleStart}}
+  \end{algorithm}
+
+  \vfill\null
+  \pagebreak
+  
+  \section{Inequality Constrained Optimization}
+  Ideas:
+  \begin{itemize}
+  \item gradient projection: update x with descent direction, then project back onto feasibility set. Assume feasibility set is convex.
+    \begin{align*}
+      &x \leftarrow descent\ update\\
+      &\tilde{s} = \argmin_s \norm{x-s}, s.t.\ s \in X=feasibility\ set\\
+      &let\ [x]^+ = \argmin_s \norm{x-s}, s.t.\ s \in X\\
+      &x_{k+1} \leftarrow [x_k + t \Delta x]^+, eg: \Delta x = \nabla f(x)
+    \end{align*}
+    Issues: projection hard in general, line search becomes harder. Ok for simple projection (eg: box constraints).
+  \item Adapt Newton's Method with projection.
+    \begin{align*}
+      \min_v \nabla f(x)^T v + \frac{1}{2} v^T \nabla^2 f(x) v\\
+      s.t.\ x_{k+1} = x_k+v \in X
+    \end{align*}
+    Issues: Hard to solve.
+  \item elimination inequality constraint and augment objective (eg: Interior Point)
+  \end{itemize}
+  \subsubsection{Interior Point with Inequality \&\\ Equality Constraints}
+  \begin{align*}
+    &\min_x f_0(x)\\
+    &s.t.\ f_i(x) \leq 0, \forall i\in\set{1,..,m}\\
+    & Ax = b
+  \end{align*}
+  Assumptions:
+  \begin{itemize}
+  \item solution exists
+  \item strict feasibility (Slater's cond. hold), so strong duality
+  \item objective and inequality functions differentiable and convex
+  \end{itemize}
+
+  Barrier Method:
+  \begin{align*}
+    &\min_x f_0(x) + \sum_{i=1}^m I(f_i(x))\\
+    &s.t.\ Ax = b\\
+    &I(u) =
+      \begin{cases}
+        0 &, u \leq 0\\
+        +\infty &, o/w
+      \end{cases}
+  \end{align*}
+
+  \vfill\null
+  \columnbreak
+  
+  $I(u)$ convex, non-decreasing, but non-differentiable.\\
+  
+  Use log barrier function to approximate $I(u)$
+  \begin{align*}
+    &\hat{I}(u) = -\frac{1}{t}log(-u)\\
+    &\hat{I}(u)|_{t \to +\infty} \to I(u)
+  \end{align*}
+  Log barrier:
+  \begin{align*}
+    &\Phi(x) = -\sum_i log(-f(x))
+  \end{align*}
+  \begin{align*}
+    &\min_x f_0(x) + \frac{1}{t} \sum_{i=1}^m log(-f_i(x))\\
+    &\min_x f_0(x) + \frac{1}{t} \Phi(x)\\
+    &\min_x\ t f_0(x) + \Phi(x)\\
+    &s.t.\ Ax = b
+  \end{align*}
+  Approach: fix $t$, optimize problem to obtain $x^*(t)$. Repeat for $t$ increasing in value with previously solved intermediate solution so that $x^*(t)|_{t\to +\infty} = x^*$.\\
+
+  Find a starting strictly feasible point $x$. Set $t_0>0$.
+  Inner optimization problem, solve $x^*(t)$(via iterative algo such as Newton):
+  \begin{align*}
+    &x^*(t) = \min_x\ t f_0(x) + \Phi(x)\\
+    &s.t.\ Ax = b\\
+    \\
+    &update:\\
+    &x=x^*(t)\\
+    &t\leftarrow \mu t, \mu > 1 (eg: 10)
+  \end{align*}
+  Repeat until stopping criterion: $\frac{m}{t} < \epsilon$ is met.\\
+
+  Central Path:\\
+  Successive solving of inner optimization problem with varying $t$ traces out a path, leading closer to the optimal final solution.\\
+
+  Central path lies in the interior of the feasibility region, thus potential optimal solution on the boundary of the feasibility set is never exactly reached.\\
+
+  Inner optimization usually uses 2nd order methods for auto-scaling of level set of optimization objective when $t$ is large.\\
+
+  \vfill\null
+  \pagebreak
+  Search for Initial Feasible Point (Phase 1):\\
+  Formulate problem as:\\
+  \begin{align*}
+    &\min_{x,s} s\\
+    &s.t.\ f_i(x) \leq s, \forall i\\
+    &Ax=b
+  \end{align*}
+  If $s^* < 0$, $x^*$ is strictly feasible. Else infeasibility.\\
+  
+  Initialization of Phase 1 problem: set $s > \max_i f_i(x)$ so that starting point is interior of feasible set. Then proceed to solve using Interior Point method.\\
+
+  If $s^* < 0$, then original problem is solved using $x^*$ as the strictly feasible starting point.
+
+  Interpretation of Interior Point Method with KKT:\\
+  Primal of Original:
+  \begin{align*}
+    &\min_x f_0(x)\\
+    &s.t.\ f_i(x) \leq 0, \forall i\in\set{1,..,m}\\
+    & Ax = b
+  \end{align*}
+  Lagrangian of Primal:\\
+  $f_0(x) + \sum_i \lambda_i f_i(x) + w^T(Ax-b)$\\
+  KKT optimality conditions:
+  \begin{align*}
+    &\nabla f_0(x) + \sum_i \lambda_i \nabla f_i(x) + A^T w = 0\\
+    &\lambda_i \geq 0\\
+    &Ax-b = 0\\
+    &\lambda_i f_i(x) = 0\\
+    &f_i(x) \leq 0
+  \end{align*}
+
+  Primal of Log-Barrier:
+  \begin{align*}
+    &\min_x f_0(x) - \frac{1}{t} \sum_i log(-f_i(x))\\
+    & s.t.\ Ax = b
+  \end{align*}
+  KKT optimality conditions for Log-Barrier problem:
+  \begin{align*}
+    &\nabla f_0(x) - \frac{1}{t} \sum_i \frac{\nabla f(x)}{f_i(x)} + A^T w = 0\\
+    &Ax - b = 0\\
+    &f_i(x) \leq  0\ (domain\ of\ log)\\
+    &let\ \lambda_i = -\frac{1}{t f_i(x)}\\
+    &\nabla f_0(x) + \sum_i \lambda_i \nabla f(x) + A^T w = 0\\
+    &Ax - b = 0
+  \end{align*}
+  \vfill\null
+  \columnbreak
+  
+  \begin{align*}
+    t > 0, f_i(x) \leq 0 \implies \lambda_i = -\frac{1}{t f_i(x)} \geq 0
+  \end{align*}
+  Overall (Modified) KKT conditions for Log-Barrier:
+  \begin{align*}
+    &\nabla f_0(x) + \sum_i \lambda_i \nabla f(x) + A^T w = 0\\
+    &f_i(x) \leq  0\\
+    &Ax - b = 0\\
+    &\lambda_i \geq 0\\
+    &\lambda_i f_i(x) = -\frac{1}{t}
+  \end{align*}
+  This approaches true KKT conditions as $t\to +\infty$.
+  \vfill\null
+  \pagebreak
+
+  Obtaining a bound on duality gap of the modified problem from original:\\
+  Dual of original:
+  \begin{align*}
+    &g(\lambda) = \min_{Ax=b} f_0(x) + \sum_i \lambda_i f_i(x)\\
+    &g(\lambda) \leq f_0(x) + \sum_i \lambda_i f_i(x), Ax=b\\
+    &g(\lambda) \leq f_0(x^*) + \sum_i \lambda_i f_i(x^*), Ax^*=b\\
+    &(\forall i)f_i(x^*) \leq 0, \lambda_i \geq 0 \implies\\
+    &g(\lambda) \leq f_0(x^*) + \sum_i \lambda_i f_i(x^*) \leq f_0(x^*)\\
+    &g(\lambda) \leq f_0(x^*), \lambda \geq 0
+  \end{align*}
+
+  Log-Barrier Problem:
+  \begin{align*}
+    &\min_x f_0(x) - \frac{1}{t} \sum_i log(-f_i(x))\\
+    & s.t.\ Ax = b    
+  \end{align*}
+  KKT optimality conditions:
+  \begin{align*}
+    &\nabla f_0(x) + \sum_i -\frac{1}{t f_i(x)} \nabla f(x) + A^T w = 0\\
+    &f_i(x) \leq  0\\
+    &Ax - b = 0\\
+    &from\ dual:\\
+    &g(\lambda) \leq f_0(x) + \sum_i \lambda_i f_i(x), Ax=b\\
+    &\lambda_i = -\frac{1}{t f_i(x)}, f_i(x) \leq 0 \implies same\ KKT\ conditions\\
+    &x^*(t)\ minimizes\ for\ particular\ \lambda_i^*(t) = -\frac{1}{t f_i(x)}\\
+    &g(\lambda^*(t)) = f_0(x^*(t)) + \sum_i \lambda_i^*(t) f_i(x^*(t)), Ax^*(t)=b\\
+    &g(\lambda^*(t)) = f_0(x^*(t)) + \sum_i -\frac{1}{t f_i(x^*(t))} f_i(x^*(t))\\
+    &g(\lambda^*(t)) = f_0(x^*(t)) + \sum_{i=1}^m -\frac{1}{t}, Ax^*(t)=b\\
+    &g(\lambda^*(t)) = f_0(x^*(t)) -\frac{m}{t} \leq f_0(x^*)\\
+    &f_0(x^*(t)) \leq f_0(x^*) + \frac{m}{t}\\
+    &f_0(x^*) \leq f_0(x^*(t)) \implies gives\ bound\ of\ gap: \frac{m}{t}\\
+  \end{align*}
+  $x^*(t)$ gives solution that is bounded by $\frac{m}{t}$ away from optimal wrt. objective.\\
+  $\frac{m}{t}$ usable as stopping criterion.
+  \vfill\null
+  \columnbreak
+
+  \subsubsection{Primal-Dual Interior Point Method\\ (Alternative to Barrier Method)}
+  Overall (Modified) KKT conditions for Log-Barrier:
+  \begin{align*}
+    &\nabla f_0(x) + \sum_i \lambda_i \nabla f(x) + A^T v = 0\\
+    &f_i(x) \leq  0\\
+    &Ax - b = 0\\
+    &\lambda_i \geq 0\\
+    &-\lambda_i f_i(x) -\frac{1}{t} = 0
+  \end{align*}
+  \begin{align*}
+    &y =
+    \begin{bmatrix}
+      x\\ \lambda\\ v
+    \end{bmatrix}\\
+    &r(y) =
+    \begin{bmatrix}
+      \nabla f_0(x) + \sum_i \lambda_i \nabla f_i(x) + A^T v\\
+      -\lambda_1 f_1(x)-\frac{1}{t} = 0\\
+      ..\\
+      -\lambda_m f_m(x)-\frac{1}{t} = 0\\
+      Ax-b
+    \end{bmatrix}\\
+  \end{align*}
+  Goal: drive $r(y)$ to 0\\
+
+  1st order approx of $r(y+\Delta y)$:
+  \begin{align*}
+    &r(y+\Delta y) \approx r(y) + Dr(y)\Delta y = 0\\
+    &Dr(y) =
+      \begin{bmatrix}
+        \nabla^2 f_0(x) + \sum_i \lambda_i \nabla^2 f(x) & f_1'(x) & .. & f_m'(x) & A^T\\
+        -\lambda_1 f_1'(x) & -f_1'(x) & 0 & .. & \\
+        .. & & & &\\
+        -\lambda_m f_m'(x) & & .. & -f_m'(x) & 0\\
+        A & 0 & .. & & 
+      \end{bmatrix}\\
+    & Dr(y)\Delta y = -r(y)
+  \end{align*}
+  Overall algorithm:\\
+  \begin{algorithm}[H]
+    init strictly feasible $x,\lambda>0, \eta = -\sum_i \lambda_i f_i(x), \mu=10$\\
+    $\eta = -\sum_i \lambda_i f_i(x)$\\
+    \Do{$\norm{r_{prim}}>\epsilon \vee \norm{r_{dual}}>\epsilon \vee \eta > \epsilon_2$}{
+      $t \leftarrow \frac{\mu m}{\eta}$\\
+      Solve for $\Delta y$ in $Dr(y) \Delta y = -r(y)$\\
+      Line search for step size, $s$, using norm of residual $\norm{r}$, s.t. $\lambda>0,f(x)<0$\\
+      $y\leftarrow y + s \Delta y$\\
+      $\eta = -\sum_i \lambda_i f_i(x)$ (proxy for duality gap, the smaller the better)\\
+    }
+    \caption{IP Primal-Dual Method\label{IPPrimDual}}
+  \end{algorithm}
+  Note: one loop only, but stopping in middle of algorithm does not guarantee a feasible solution.
   \vfill\null
   \pagebreak
   
