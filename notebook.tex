@@ -59,7 +59,7 @@
   
   $S_+^n \equiv$ set of all symmetric positive semidefinite matrices (SPSD)\\
   
-  $S_++^n \equiv$ set of all symmetric positive definite matrices (SPD)\\
+  $S_{++}^n \equiv$ set of all symmetric positive definite matrices (SPD)\\
   
   $cl(X) \equiv$ closure of $X$\\
 
@@ -715,7 +715,7 @@
   \vfill\null
   \columnbreak
   
-  \subsection{Search Direction - 1st Order Methods}\\
+  \subsection{Search Direction - 1st Order Methods}
   Steepest Descent
   \begin{align*}
     % f(x+\Delta x) \geq f(x) + \nabla f(x)^T \Delta x\\
@@ -746,12 +746,12 @@
   Normalized Steepest Descent for L1-norm
   \begin{align*}
     &\Delta x_{nsd} = \argmin_{v} \set{ \nabla f(x)^T v : \norm{v}_1 \leq 1 }\\
-    &\Delta x_{nsd} = - sign (\frac{\partial f(x)}{\partial x_i})\ e_i, i: \norm{\nalfa f(x)}_{\infty} = |(\nabla f(x))_i|
+    &\Delta x_{nsd} = - sign (\frac{\partial f(x)}{\partial x_i})\ e_i, i: \norm{\nabla f(x)}_{\infty} = |(\nabla f(x))_i|
   \end{align*}
   \vfill\null  
   \pagebreak
   
-  \subsubsection{Search Direction - 2nd Order Methods}\\
+  \subsubsection{Search Direction - 2nd Order Methods,\\ Unconstrained}
   Newton's Method
   \begin{align*}
     &\Delta x_{nt} = - \nabla^2 f(x)^{-1} \nabla f(x)\\
@@ -763,8 +763,18 @@
   2nd order Taylor approximation of function is minimized with $\Delta x_{nt}$, so quadratic model gives good approximation near minimizer.\\
 
   Newton Decrement: used for convergence/stopping criterion
+  
+  Norm of Newton Step:
   \begin{align*}
-    &\lambda(x) = (\nabla f(x)^T \nabla^2 f(x) ^{-1} \nabla f(x))^{\frac{1}{2}}\\
+    \lambda(x) = (\Delta x_{nt}^T \nabla^2 f(x) \Delta x_{nt})^{\frac{1}{2}} = \norm{(\nabla^2 f(x) \Delta x_{nt})^{\frac{1}{2}}}_2
+  \end{align*}
+  Bounding difference of lower bound of 2nd order model and $f(x)$:
+  \begin{align*}
+    f(x) - \inf & \{ f(x) + \nabla f(x)^T v + \frac{1}{2} v^T \nabla^2 f(x) v\\
+                &: A(x+v) = b \} = \frac{1}{2} \lambda(x)^2
+  \end{align*}
+  \begin{align*}
+    % &\lambda(x) = (\nabla f(x)^T \nabla^2 f(x) ^{-1} \nabla f(x))^{\frac{1}{2}}\\
     &\frac{1}{2}\lambda(x)^2 \approx f(x) -p^*\\
     &\nabla f(x)^T \Delta x_{nt} = - \nabla f(x)^T \nabla^2 f(x)^{-1} \nabla f(x)\\
     &\nabla f(x)^T \Delta x_{nt} = -\lambda(x)^2 = \frac{d}{dt}f(x+\Delta x_{nt}t)|_{t=0}
@@ -780,7 +790,8 @@
     }
     \caption{Newton Method Descent\label{NewtonMethod}}
   \end{algorithm}
-
+  Assumptions of above algorithm: KKT matrix invertible. Descent method is decreasing wrt. $f$.\\
+  
   Convergence: split into damped phase and quadratically convergent phase. Fast convergence once step size is 1.
 
   \vfill\null
@@ -837,6 +848,97 @@
   $A^{-1}$ exists: $(A+uv^T)^{-1}$ exists $\iff 1+v^TA^{-1}u \not=0$\\
   $(A+uv^T)^{-1}=A^{-1} - \frac{A^{-1}uv^T A^{-1}}{1+v^TA^{-1}u}$\\
   
+  \vfill\null
+  \pagebreak
+
+  \section{Equality Constrained Optimization}
+  Approaches:
+  \begin{itemize}
+  \item elimination of equality constraint, variable substitution into objective\\
+    Solve remaining unconstrained problem.
+  \item dual method: solve equality constrained primal using dual formulation
+  \item modified Newton's Method with equality constraint handling
+  \end{itemize}
+
+  Solve via KKT condition at optimality:
+  \begin{align*}
+    &\Delta x = \argmin_v f(x) + \nabla f(x)^T v + \frac{1}{2} v^T \nabla^2 f(x) v\\
+    &s.t.\ A(x+v)=b\\
+    &optimality\ condition:\\
+    &L(v,w) = f(x) + \nabla f(x)^T v + \frac{1}{2} v^T \nabla^2 f(x) v\\
+    &+ w^T(A(x+v)-b)\\
+    &\frac{\partial L(v,w)}{\partial v} = \nabla f(x) + \nabla^2 f(x) v + A^T w = 0\\
+    &A(x+v) = b\\
+    &Ax = b \implies Av = 0\\
+    & KKT\ system:\\
+    &\begin{bmatrix}
+        \nabla^2 f(x) & A^T \\
+        A & 0 
+      \end{bmatrix}
+      \begin{bmatrix}
+        v\\ w
+      \end{bmatrix}=
+            K
+      \begin{bmatrix}
+        v\\ w
+      \end{bmatrix} =
+    \begin{bmatrix}
+        -\nabla f(x)\\
+        0
+      \end{bmatrix}\\
+    &\begin{bmatrix}
+        v\\ w
+      \end{bmatrix} = K^{-1}
+      \begin{bmatrix}
+        -\nabla f(x)\\
+        0
+      \end{bmatrix}, K^{-1}\ exists\\
+    &\Delta x = v
+  \end{align*}
+  Solve via elimination
+  \begin{align*}
+    &\nabla f(x) + \nabla^2 f(x) v + A^T w = 0\\
+    &v + \nabla^2 f(x)^{-1} A^T w + \nabla^2 f(x)^{-1} \nabla f(x)=0\\
+    &Av + A \nabla^2 f(x)^{-1} A^T w + A \nabla^2 f(x)^{-1} \nabla f(x)=0\\
+    &A \nabla^2 f(x)^{-1} A^T w + A \nabla^2 f(x)^{-1} \nabla f(x)=0\\
+    &w = - (A \nabla^2 f(x)^{-1} A^T)^{-1} A \nabla^2 f(x)^{-1} \nabla f(x)\\
+    &v = \nabla^2 f(x)^{-1} (-\nabla f(x) - A^T w)\\
+    &\Delta x = v
+  \end{align*}
+  $\nabla^2 f(x)$ not invertible, augment KKT system s.t.\\
+  $(\exists Q) \nabla^2 f(x) + AQA > 0$\\  
+  \begin{align*}
+    &\begin{bmatrix}
+      \nabla^2 f(x) + AQA & A^T \\
+      A & 0 
+    \end{bmatrix}
+    \begin{bmatrix}
+      v\\ w
+    \end{bmatrix} =
+    \begin{bmatrix}
+      -\nabla f(x)\\
+      0
+    \end{bmatrix}\\
+    &AQAv = 0 \implies\ solution\ same\ to\ original\ problem
+  \end{align*}
+  
+  \vfill\null
+  \columnbreak
+  
+  \begin{algorithm}[H]
+    init $x_0 \in dom f, Ax_0=b$\;
+    $\Delta x_{nt} \leftarrow$ Solve KKT System / Elimination\;
+    $\lambda(x)^2 \leftarrow \Delta x_{nt}^T \nabla^2 f(x)^{-1} \Delta x_{nt}$\;
+    \While{$\frac{1}{2}\lambda(x)^2>\epsilon$}{
+      $t \leftarrow$ Compute Step Size (eg: backtrack)\;
+      $x_{k+1} \leftarrow x_k + t \Delta x_{nt}$
+    }
+    \caption{Newton Method w/ Equality Constraint\label{NewtonMethodEq}}
+  \end{algorithm}
+
+  \subsection{Infeasible Start Newton Method}
+  Modified Newton's Method with equality contraint handling
+
   \vfill\null
   \pagebreak
   
