@@ -1061,13 +1061,13 @@
       $\Delta v, \Delta x \leftarrow$ Solve primal-dual KKT system\\
       Backtrack Step Size Search with $\norm{r}$:\\
       $t \leftarrow 1$\\
-      \While{$\norm{r(x+ t \Delta x, v + t \Delta v)}>(1-\alpha t)\norm{r()x,v}$}{
+      \While{$\norm{r(x+ t \Delta x, v + t \Delta v)}>(1-\alpha t)\norm{r(x,v)}$}{
         $t \leftarrow \beta t$\\
       }
       $x_{k+1} \leftarrow x_k + t \Delta x$\\
       $v_{k+1} \leftarrow v_k + t \Delta v$\\
     }
-    \caption{Newton Method w/ \\Infeasible Start\label{NewtonMethodInfeasibleStart}}
+    \caption{Newton Method w/ Infeasible Start\label{NewtonMethodInfeasibleStart}}
   \end{algorithm}
 
   \vfill\null
