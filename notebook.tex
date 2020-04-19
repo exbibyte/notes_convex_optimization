@@ -69,6 +69,8 @@
   $relint(X) \equiv$ relative interior of $X$\\
   
   $int(X) \equiv$ interior of $X$\\
+
+  $[x]^+ \equiv max(x,0)$
   
   \vfill\null
   \columnbreak
@@ -1312,6 +1314,381 @@
   \end{algorithm}
   Note: one loop only, but stopping in middle of algorithm does not guarantee a feasible solution.
   \vfill\null
+  \pagebreak
+
+  \section{Ellipsoid Method}
+
+  $f$ is convex, $C^{1}$ only\\
+  $(\forall x, x_0) f(x) \geq f(x_0) + \nabla f(x_0)^T(x-x_0)$\\
+  $\nabla f(x_0)^T (x-x_0) \geq 0 \implies f(x) \geq x(x_0)$\\
+  Idea: use of halfspace to perform elimination of search space\\
+  Selection of potential search points: use centroid of feasible polyhedron to maximize elimination space\\
+  Volumne reduction: $(X_{max} - X_{min})/2^k$\\
+  \begin{algorithm}[H]
+    \Do{Satisfy stopping criterion}{
+      update select $x^{(k)}$ using center of $C^{(k)}$ where $x^* \in C^{(k-1)}$\\
+      $(\forall i ) C^{(k-1)}=\set{x: \nabla f(x^(i))^T (x-x^{(i)}) \leq 0 }$\\
+      bisection:\\
+      $f'(x^{(k)}(x-x^{(k)})$ eliminates 1 side of halfspace\\
+      $C^{(k)}=C^{(k-1)} \cap \set{ x: \nabla f(x^{(k)})^T (x-x^{(k)}) \leq 0}$\\
+    }
+    \caption{Halfspace Elimination\label{HalfspaceElimi}}
+  \end{algorithm}
+
+  Pros:
+  \begin{itemize}
+  \item cnetroid selection easy
+  \item bisection evaluation easy
+  \item exponential rate
+  \end{itemize}
+  Implementation issues: centroid search, intersection in high dimension\\
+  Simplify: ellipsoid instead of polyhedral for localization
+  \begin{algorithm}[H]
+    \Do{Satisfy stopping criterion}{
+      set $x^{(k+1)}$ as center of $\varepsilon^{(k)}$\\
+      eval $\nabla f(x^{(k+1)})$\\
+      find min. volume ellipsoid covering:\\
+      $S=\set{x: \nabla f(x^{(k+1)})(x-x^{(k+1)}) \leq 0}$\\
+      $\varepsilon^{(k+1)}=\varepsilon \cap S$\\
+    }
+    \caption{Ellipsoid Method\label{algo:EllipsoidMethod}}
+  \end{algorithm}
+
+  Intersection search:\\
+  $g=\nabla f(x^{(k+!)})$\\
+  $\tilde{g} = \frac{g}{\sqrt{g^TPg}}$\\
+  $\varepsilon^{(k)} = \set{x: (x-x^{(k+1)})^T P^{-1} (x-x^{(k+1)}) \leq 1}$\\
+  $\varepsilon^{(k+1)} = \set{x: (x-x^+)^T (P^+)^{-1} (x-x^+) \leq 1}$\\
+  $x^+ = x^{(k-1)} - \frac{1}{n+1} P \tilde{g}, n=dim\ of\ X$\\
+  $P^+ = \frac{n^2}{n^2-1}(P-\frac{2}{n+1} P \tilde{g}\tilde{g}^T P)$\\
+  $Vol(\varepsilon^{(k+1)}) \leq e^{-\frac{1}{2^n}} Vol(\varepsilon^{(k)})$\\
+  \vfill\null
+  \columnbreak
+  \section{Subgradient Method}
+  $f$ convex, but not $C^{1},C^{2}$\\
+  Idea: need a $g$ such that $(\forall x)f(x) \geq f(x_0)+g^T(x-x_0)$\\
+  $g:=$ a subgradient\\
+  Can use $g$ in ellipsoid method\\
+  
+
+  \subsection{Application}
+  Decomposition of LP into decoupled systems:\\
+  
+  Original LP:
+  \begin{align*}
+    &\min_{u,v} c^Tu + d^Tv\\
+    s.t. & Au \leq b\\
+    & Pv \leq q\\
+    &Fu + Gv \leq h
+  \end{align*}
+
+  Augment objective w/ constraint, partial Lagrandian
+  \begin{align*}
+    L(u,v,\lambda) &= c^Tu+d^tv + \lambda^T(Fu+Gv-h)\\
+    g(\lambda) &= \min_{u,v} c^Tu+d^tv + \lambda^T(Fu+Gv-h)\\
+    s.t. & Au \leq b\\
+         & Pv \leq q
+  \end{align*}
+
+  For fixed $\lambda$, we can solve 2 separate LPs involving only u and v
+  \begin{align*}
+    \min_{u} & c^Tu + \lambda^T Fu\\
+    s.t. & Au \leq b
+  \end{align*}
+  \begin{align*}
+    \min_{v} & d^Tv + \lambda^T Gv\\
+    s.t. & Pv \leq q
+  \end{align*}      
+  $\max.\ g(\lambda)$ s.t. $\lambda \geq 0$ gives optimal $\lambda^*$\\
+  
+  $g(\lambda)$ concave, but not differentiable\\
+  Use subgradient, $s$, s.t. $g(\tilde{\lambda}) \leq g(\lambda) + s^T(\tilde{\lambda} - \lambda), \forall \tilde{\lambda}$\\
+
+  $(u^*,v^*)$ for a fixed $\lambda$:\\
+  $S=Fu^*+Gv^*-h$ is a subgradient of $g$ at $\lambda$\\
+  
+  $g(\tilde{\lambda}) = \min_{u,v} c^Tu + d^Tv + \tilde{\lambda}^T(Fu+Gv-h) \leq c^Tu^* + d^Tv^*+\tilde{\lambda}^T(Fu^8+Gv^*-h)$\\
+
+  For $\forall u,v$ feasible:
+  \begin{align*}
+    g(\tilde{\lambda}) & = \min_{u,v} c^Tu + d^Tv + \tilde{\lambda}^T(Fu+Gv-h)\\
+    s.t. & Au \leq b\\
+         & Pv \leq q
+  \end{align*}
+  \begin{align*}
+    g(\tilde{\lambda}) & \leq c^Tu^* + d^Tv^* + \tilde{\lambda}^T(Fu^*+Gv^*-h)\\
+                       & +\lambda^T(Fu^*+Gv^*-h)\\
+                       & -\lambda^T(Fu^*+Gv^*-h)\\
+    g(\lambda) & = c^Tu^*+d^Tv^* + \lambda^T(Fu^*+Gv^*-h)\\
+    % (\tilde{\lambda}-\lambda)^T&(Fu^*+Gv^*-h) = \tilde{\lambda}^T(Fu^*+Gv^*-h)\\
+    %                    &-\lambda^T(Fu^*+Gv^*-h)\\
+    g(\tilde{\lambda}) &= g(\lambda) + (\tilde{\lambda}-\lambda)^T(Fu^*+Gv^*-h)\\
+                       &= g(\lambda) + s^T(\tilde{\lambda}-\lambda)
+  \end{align*}
+
+  $s=Fu^*+Gv^*-h$ is subgradient of $g$ at point $\lambda$
+
+  $\max_{\lambda \geq 0} g(\lambda)$ for expression of subgradient\\
+
+  Update rule for $\lambda$:\\
+  $\lambda^{(k+1)}=[\lambda^{(k)} + \alpha_k s^{(k)}]^+$
+
+  Interpretation of subgradient $s=Fu^*+Gv^*-h$\\
+
+  Original problem $Fu+Gv-h \leq 0$\\
+
+  $\lambda$, pricing variable associated w/ constraint
+  
+  Penalize objective w/ $\lambda^T(Fu+Gv-h)$
+
+  $(\exists u^8, v^*) Fu^*+Gv^* \leq h \implies \lambda$ decreases\\
+  $(\exists u^8, v^*) Fu^*+Gv^* \geq h \implies \lambda$ increases\\
+
+  Summary for decoupling LP:
+  \begin{align*}
+    \min_{u,v} & c^t u + d^T v\\
+          s.t. & Au \leq b\\
+               & Pv \leq q\\
+               & Fu+Gv \leq h
+  \end{align*}
+  Subproblems:
+  \begin{align*}
+    \min_{u} & c^t u + \lambda^T Fu\\
+          s.t. & Au \leq b
+  \end{align*}
+  \begin{align*}
+    \min_{v} & d^T v + \lambda^T Gv\\
+          s.t. & Pv \leq q
+  \end{align*}  
+
+  \vfill\null
+  \columnbreak
+  
+  Algorithms:\\
+  \begin{algorithm}[H]
+    set $\lambda^{(0)}>0$\\
+    \Do{until convergence: $\norm{f(u,v)-g(\lambda)}<\epsilon$}{
+      solve 2 LP problems for fixed $\lambda^{(k)} \to (u^*,v^*)$\\
+      calculate $s^(k)=Fu^*+Gv^*-h$\\
+      update $\lambda^(k+1)=[\lambda^{(k)}+\alpha_k s^{(k)}]^+$
+    }
+    \caption{Decoupling LP with Subgradient\label{algo:LPSubgradient}}
+  \end{algorithm}
+
+  Choosing $\lapha_k$, derivation ultimately comes to:\\
+  $\sum_{k=1}^{\infty} a_k^2 < \infty$, $\sum_{k=1}^{\infty} a_k \to \infty \implies$\\
+  $\lambda^{(k)} \to \lambda^*,k\to\infty$\\
+  eg: $\alpha_k = \frac{1}{k}$
+
+  Issues with subgradient method:
+  \begin{itemize}
+  \item can be slow
+  \item step size selection difficult
+  \end{itemize}
+
+  \vfill\null
+ 
+  \pagebreak
+
+  \section{Practical Optimization Strategies}
+  
+  Ellipsoid Method:
+  \begin{itemize}
+  \item slower
+  \item easier to code
+  \end{itemize}
+
+  Interior Point Method:
+  \begin{itemize}
+  \item faster
+  \item harder to code
+  \end{itemize}
+
+  Tradeoff:\\
+  program vs. run time
+  leverage existing software: use problem conversion (eg: LP to SDP)\\
+  LP $\iff$ SDP:
+  \begin{align*}
+    \min_{x} c^Tx\\
+    s.t. Ax \leq b
+  \end{align*}
+  \begin{align*}
+    \min_{x} c^Tx\\
+    s.t. diag(Ax-b) \preceq 0 \iff\\
+    \sum_i x_i F_i \preceq 0
+  \end{align*}
+
+  SOCP $\iff$ SDP:
+  \begin{align*}
+    \min_x f^Tx\\
+    s.t. \norm{Ax+b}_2 \leq c^Tx + d
+  \end{align*}
+  \begin{align*}
+    \min_x f^Tx\\
+    s.t.
+    \begin{bmatrix}
+      (c^Tx+d)I & Ax+b\\
+      (Ax+b)^T & c^Tx+d
+    \end{bmatrix} \succeq 0
+  \end{align*}
+
+  use Schur Complement:\\
+  \begin{align*}
+    X = \begin{bmatrix}
+      A & B \\
+      B^T & C
+    \end{bmatrix}\\
+    X \succeq 0 \iff A \succeq 0 \wedge C-B^TA^{-1}C \succeq 0\\
+    X \succeq 0 \iff C \succeq 0 \wedge A-BC^{-1}B^T \succeq 0
+  \end{align*}
+
+  \begin{align*}
+    let\ X=
+    \begin{bmatrix}
+      (c^Tx+d)I & Ax+b\\
+      (Ax+b)^T & c^Tx+d
+    \end{bmatrix} \succeq 0 \iff\\
+    \begin{cases}
+      c^Tx+d \succeq 0 & \\
+      c^Tx+d - \frac{(Ax+b)^TI(Ax+b)}{c^Tx+d} \succeq 0 &\\      
+    \end{cases}\\
+    (c^Tx+d)^2 \geq \norm{Ax+b}_2^2\\
+    c^Tx+d \geq \norm{Ax+b}_2\\
+  \end{align*}
+  
+  \vfill\null
+  \columnbreak
+
+  \subsection{Coordinate Desecent}
+  \subsubsection{Unconstrained minimization problem}
+  \begin{align*}
+    \min_{x_1,x_2} f(x_1,x_2)\\
+    assume\ x_1^*, x_2^*\ exist
+  \end{align*}
+  \begin{algorithm}[H]
+    \Do{until convergence}{
+      fix $x_1$, min. over $x_2$\\
+      fix $x_2$, min. over $x_1$
+    }
+    \caption{Coordnate Descent\label{algo:CoordDescent}}
+  \end{algorithm}
+  Convergence: yes\\
+  Sequence of objective value is non-increasing\\
+  Optimal value exists and bounded below\\
+  CD algo. guaranteed to converge to a (local) minima whether or not objective function is convex\\
+  global optimal: $
+  \begin{cases}
+    \text{No} , & \text{nonconvex obj}\\
+    \text{Yes} , & \text{convex, differentiable obj}
+  \end{cases}
+  $\\
+
+  Assume CD converges to $(x_1^*,x_2^*)$, $\nabla f$ exists.\\
+  Piecing together:
+  \begin{align*}
+    \nabla_{x_1} f|_{x_1^*,x_2^*} = 0\\
+    \nabla_{x_2} f|_{x_1^*,x_2^*} = 0\\
+    \nabla f =
+    \begin{bmatrix}
+      \nabla_{x_1} f\\
+      \nabla_{x_2} f
+    \end{bmatrix}\bigg|_{x_1^*,x_2^*} = 0 \implies optimal
+  \end{align*}
+  Non-differentiable objective function, iterate may get stuck.
+  \subsubsection{Constrained problem}
+  CD works if constraints are separable\\
+  eg:
+  \begin{align*}
+    \min_{x_1,x_2} f(x_1,x_2)\\
+    s.t. 
+    \begin{bmatrix}
+      A & 0\\
+      0 & F
+    \end{bmatrix}
+    \begin{bmatrix}
+      x_1\\x_2
+    \end{bmatrix} \leq
+    \begin{bmatrix}
+      b\\
+      g
+    \end{bmatrix}
+  \end{align*}
+
+  $x_1,x_2$ decoupled, separable\\
+  Solve separate problems, concatenate results\\
+
+  At optimality:\\
+  \begin{align*}
+    &\nabla_{x_1} f(x_1^*,x_2^*) + A^T \lambda_1 = 0\\
+    &\nabla_{x_2} f(x_1^*,x_2^*) + F^T \lambda_2 = 0\\
+    &\implies\\
+    &\nabla_x f(x_1^*,x_2^*) +
+    \begin{bmatrix}
+      A^t & 0 \\
+      0 & F^T
+    \end{bmatrix}
+    \begin{bmatrix}
+      \lambda_1\\
+      \lambda_2
+    \end{bmatrix}\\
+    & = \nabla_x f(x_1^*,x_2^*) + \tilde{A}^T \lambda = 0
+  \end{align*}
+
+  CD works for separable constraints due to:
+  \begin{itemize}
+  \item convergence guarantee
+  \item at convergence, KKT condition of orig. problem satisfied
+  \end{itemize}
+
+  \vfill\null
+  \columnbreak
+  
+  \subsection{Sequential Quadratic Programming (SQP)}
+  
+  $\min_x f_0(x)$, $f_0$ nonconvex, differentiable
+
+  Idea: per iteration, approximate $f_0(x)$ by a convex function (eg: quadratic)\\
+  Solves for a local optimum\\
+
+  At point $x$:
+  \begin{align*}
+    f_0(x+v) \approx f_0(x) + \nabla f_0(x)^T v + \frac{1}{2} v^T \nabla^2 f_0(x) v\\
+    \min_v \nabla f_0(x)^T v + \frac{1}{2} v^T \nabla f_0^2(x) v\\
+    \Delta x = v^* \implies x = x + \alpha \Delta x, \alpha\ via\ line\ search
+  \end{align*}
+
+  Constrained problem:\\
+  Idea: form Lagrandian $L(x,\lambda,v)=f_0(x)+\sum_i \lambda_i f_i(x) + \sum_i v_i h_i(x)$
+  \begin{align*}
+    \min_x L(x,\lambda,v)\\
+    s.t. f_i(x) \leq 0\\
+    h_i(x) = 0
+  \end{align*}
+  
+  At $\lambda,v$ optimal dual dual variable
+  \begin{align*}
+    \min_v (\nabla_x L)^T v + \frac{1}{2}v^T(\nabla_x^2L)v\\
+    s.t. \nabla f_i(x)^Tv + f_i(x) \leq 0\\
+         \nabla h_i(x)^Tv + h_i(x) \leq 0
+  \end{align*}
+
+  Updating $\lambda,v$?\\
+  Select $\Delta \lambda, \Delta v$ in direction of subgradient\\
+
+  For fixed $\lambda, v$: $x^{(k+1)} \leftarrow x + \alpha \Delta x, \Delta x = v$
+  
+  Algo:\\
+  \begin{algorithm}[H]
+    \Do{until convergence}{
+      solve QP to obtain $9\Delta x, \Delta \lambda, \Delta v)$\\
+      line search $(x,\lambda,v)=(x,\lambda,v)+\alpha(\Delta x,\Delta \lambda, \Delta v)$\\
+      reapproximate by QP
+    }
+    \caption{Sequential Quadratic Programming\label{algo:SQP}}
+  \end{algorithm}
+  
+  \vfill\null
+  
   \pagebreak
   
   \section{Appendix}
