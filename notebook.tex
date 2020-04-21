@@ -51,6 +51,7 @@
 \begin{document}
 
 \lhead{Notebook - Convex Optimization}
+\rhead{Bill Liu}
 
 \begin{multicols*}{2}
 
@@ -290,7 +291,7 @@
   \end{align*}
   concatenating constraints:
   \begin{align*}
-    F^(i)(x) = \sum_j x_j F_i^{(i)} + G^{(i)} \preceq 0\\
+    F^{(i)}(x) = \sum_j x_j F_i^{(i)} + G^{(i)} \preceq 0\\
     Gx \preceq h\\
     \implies\\
     diag(Gx-h, F^{(1)}(x),..,F^{(m)}(x)) \preceq 0\\
@@ -509,19 +510,19 @@
   for $x,y \in dom(f): f(x) \geq f(y) + f'(y)(x-y)$\\
   for $y,x \in dom(f): f(y) \geq f(x) + f'(x)(y-x)$\\
   $f'(x)(y-x) \leq f(y)-f(x) \leq f'(y)(y-x)$\\
-  $f'(x)(y-x) \leq f'(y)(y-x) \implies 0 \leq (y-x)(f'(x)-f'(y))$\\
+  $f'(x)(y-x) \leq f'(y)(y-x) \implies 0 \leq (y-x)(f'(y)-f'(x))$\\
   % $\frac{x}{(y-x)^2} \implies 0 \leq \frac{f;(y)-f'(x)}{(y-x)}$
   take $y\to x: 0 \leq f''(x)$\\
   $f''(x) \geq \frac{f'(x+\delta x)-f'(x)}{\delta x}$\\
 
   conversely, suppose that $f'(z) \geq 0, \forall z \in dom(f)$, take $x,y \in dom(f)$ WLOG $x < y$\\
   $\int_x^y f''(z)(y-z) dz \geq 0$\\
-  $f''(z) \geq 0, (y-z) \geq 0 = I_1+I_2$\\
-  $I_1 = \int_x^y f''(z)y dz- y f'(z)|_x^y = y(f'(y)-f'(x))$\\
-  $I_2 = -\int_x^y f''(z) dz$\\
-  $dv=f''(z) dz \implies v = f''(z)$\\
+  $f''(z) \geq 0, (y-z) \geq 0$\\
+  $I_1 = \int_x^y f''(z)y dz =  y(f'(y)-f'(x))$\\
+  $I_2 = -\int_x^y zf''(z) dz$\\
+  $dv=f''(z) dz \implies v = f'(z)$\\
   $u=z\implies du = dz$\\
-  $I_2 = -z f'(z)|_x^y + \int_x^y f(z) dz = -y f'(y) + x f'(x)+f(y)-f(x)$\\
+  $I_2 = -[z f'(z)]|_x^y + \int_x^y f'(z) dz = -y f'(y) + x f'(x)+f(y)-f(x)$\\
   $I_1+I_2=y f'(y)-y f'(x)-y f'(y) + x f'(x) + f(y)-f(x) \geq 0$\\
   $\implies f(y) \geq f(x) + f'(x)(y-x)$ first order condition: $x<y$\\
   first order condition holds $\implies f(x)$ convex\\
@@ -553,6 +554,7 @@
   \begin{align*}
     x_1 \in S^n_+ \implies v^Tx_1v \geq 0\\
     x_2 \in S^n_+ \implies v^Tx_2v \geq 0\\
+    x=\theta x_1 +(1-\theta)x_2, \theta \in [0,1]\\
     v^T(\theta x_1 + (1-\theta)x_2)v \geq 0\\
     v^T\theta x_1 v + (1-\theta)v^T x_2 v \implies x \in S^n_+\\
   \end{align*}
@@ -602,18 +604,18 @@
   $\|z\|_* := \sup_x \{z^T x : \|x\|_{\infty} \leq 1\}$\\
   max $\sum_i z_i x_i$,\\
   subject to : $\|x_i\| \leq 1, \forall i$\\
-  choose $x_i=1$ if $z_i \geq 0$ and $x_i=0$ if $z_i < 0$\\
+  choose $x_i=1$ if $z_i \geq 0$ and $x_i=-1$ if $z_i < 0$\\
   equivalent to $\|z\|_* = \|z\|_1$\\
 
   Dual norm of Lp-norm: Lq-norm where $1/p + 1/q = 1$\\
 
-  Properties:
+  Properties of Dual Cone:
   \begin{itemize}
   \item $K^*$ closed and convex
-  \item $K_1 \subseteq K_2 \implies k_2^* \subseteq K_1^*$
+  \item $K_1 \subseteq K_2 \implies K_2^* \subseteq K_1^*$
   \item $K$ has non-empty interior $\implies K^*$ pointed
   \item $cl(K)$ pointed $\implies K^*$ has non-tempty interior
-  \item $K^{**} = cl(convhull(K))$
+  \item $K^{**} = cl(convhull(K))$, useful for relaxed optimization
   \item $K$ convex and closed $\implies K=K^{**}$
   \end{itemize}
   
@@ -644,7 +646,7 @@
   \subsection{support function of a set}
   \begin{align*}
     S_C(x) = \sup \set{x^T y : y \in C}\\
-    dom(S_C) = \set{x: \sup_{y\in C} c^Ty < \infty}
+    dom(S_C) = \set{x: \sup_{y\in C} x^Ty < \infty}
   \end{align*}
   It is pointwise supremum of convex function, so it is convex.
   
@@ -701,7 +703,7 @@
   
   \subsection{Search Step Size}
   Given $\Delta x$, step direction\\
-  
+  Search step size:\\
   Exact Line Search: $t = \argmin_{s\geq 0} f(x+s \Delta x)$\\
 
   \begin{algorithm}[H]
@@ -826,7 +828,7 @@
   General problem of find $B$
   \begin{align*}
     &\min_B \norm{B-B_k}\\
-    &s.t.\ B=B^T, B s-K = y_k
+    &s.t.\ B=B^T, Bs_k = y_k
   \end{align*}
   
   BFGS Update:
@@ -909,7 +911,7 @@
     &\Delta x = v
   \end{align*}
   $\nabla^2 f(x)$ not invertible, augment KKT system s.t.\\
-  $(\exists Q) \nabla^2 f(x) + AQA > 0$\\  
+  $(\exists Q) \nabla^2 f(x) + AQA > 0$
   \begin{align*}
     &\begin{bmatrix}
       \nabla^2 f(x) + AQA & A^T \\
@@ -922,6 +924,7 @@
       -\nabla f(x)\\
       0
     \end{bmatrix}\\
+    &Av=0\\
     &AQAv = 0 \implies\ solution\ same\ to\ original\ problem
   \end{align*}
   
@@ -969,7 +972,7 @@
     &L(x,v) = f(x) + v^T(Ax-b)\\
     &s.t.\ Ax-b=0\\
     &optimality:\\
-    &\frac{\partial L}{\partial v} = \nabla f(x) + A^Tv = 0
+    &\frac{\partial L}{\partial x} = \nabla f(x) + A^Tv = 0
   \end{align*}
   residual of primal and dual:
   \begin{align*}
@@ -1133,7 +1136,7 @@
     &\Phi(x) = -\sum_i log(-f(x))
   \end{align*}
   \begin{align*}
-    &\min_x f_0(x) + \frac{1}{t} \sum_{i=1}^m log(-f_i(x))\\
+    &\min_x f_0(x) - \frac{1}{t} \sum_{i=1}^m log(-f_i(x))\\
     &\min_x f_0(x) + \frac{1}{t} \Phi(x)\\
     &\min_x\ t f_0(x) + \Phi(x)\\
     &s.t.\ Ax = b
@@ -1142,15 +1145,16 @@
 
   Find a starting strictly feasible point $x$. Set $t_0>0$.
   Inner optimization problem, solve $x^*(t)$(via iterative algo such as Newton):
-  \begin{align*}
-    &x^*(t) = \min_x\ t f_0(x) + \Phi(x)\\
-    &s.t.\ Ax = b\\
-    \\
-    &update:\\
-    &x=x^*(t)\\
-    &t\leftarrow \mu t, \mu > 1 (eg: 10)
-  \end{align*}
-  Repeat until stopping criterion: $\frac{m}{t} < \epsilon$ is met.\\
+  \begin{algorithm}[H]
+
+    \Do{$\frac{m}{t} < \epsilon$ not met}{
+      $x^*(t) = \min_x\ t f_0(x) + \Phi(x)$, s.t. $Ax = b$\\
+      update:\\
+      $x=x^*(t)$\\
+      $t\leftarrow \mu t, \mu > 1$ (eg: 10)
+    }
+    \caption{Log Barrier Method\label{LogBarrierMethod}}
+  \end{algorithm}
 
   Central Path:\\
   Successive solving of inner optimization problem with varying $t$ traces out a path, leading closer to the optimal final solution.\\
@@ -1292,9 +1296,9 @@
     &Dr(y) =
       \begin{bmatrix}
         \nabla^2 f_0(x) + \sum_i \lambda_i \nabla^2 f(x) & f_1'(x) & .. & f_m'(x) & A^T\\
-        -\lambda_1 f_1'(x) & -f_1'(x) & 0 & .. & \\
-        .. & & & &\\
-        -\lambda_m f_m'(x) & & .. & -f_m'(x) & 0\\
+        -\lambda_1 f_1'(x) & -f_1(x) & 0 & .. & \\
+        .. & & ..& &\\
+        -\lambda_m f_m'(x) & & 0 & -f_m(x) & 0\\
         A & 0 & .. & & 
       \end{bmatrix}\\
     & Dr(y)\Delta y = -r(y)
@@ -1325,7 +1329,7 @@
   Selection of potential search points: use centroid of feasible polyhedron to maximize elimination space\\
   Volumne reduction: $(X_{max} - X_{min})/2^k$\\
   \begin{algorithm}[H]
-    \Do{Satisfy stopping criterion}{
+    \Do{Not Satisfy stopping criterion}{
       update select $x^{(k)}$ using center of $C^{(k)}$ where $x^* \in C^{(k-1)}$\\
       $(\forall i ) C^{(k-1)}=\set{x: \nabla f(x^(i))^T (x-x^{(i)}) \leq 0 }$\\
       bisection:\\
@@ -1344,7 +1348,7 @@
   Implementation issues: centroid search, intersection in high dimension\\
   Simplify: ellipsoid instead of polyhedral for localization
   \begin{algorithm}[H]
-    \Do{Satisfy stopping criterion}{
+    \Do{Not Satisfy stopping criterion}{
       set $x^{(k+1)}$ as center of $\varepsilon^{(k)}$\\
       eval $\nabla f(x^{(k+1)})$\\
       find min. volume ellipsoid covering:\\
@@ -1467,7 +1471,7 @@
   Algorithms:\\
   \begin{algorithm}[H]
     set $\lambda^{(0)}>0$\\
-    \Do{until convergence: $\norm{f(u,v)-g(\lambda)}<\epsilon$}{
+    \Do{not meeting $\norm{f(u,v)-g(\lambda)}<\epsilon$}{
       solve 2 LP problems for fixed $\lambda^{(k)} \to (u^*,v^*)$\\
       calculate $s^(k)=Fu^*+Gv^*-h$\\
       update $\lambda^(k+1)=[\lambda^{(k)}+\alpha_k s^{(k)}]^+$
@@ -1566,7 +1570,7 @@
     assume\ x_1^*, x_2^*\ exist
   \end{align*}
   \begin{algorithm}[H]
-    \Do{until convergence}{
+    \Do{not until convergence}{
       fix $x_1$, min. over $x_2$\\
       fix $x_2$, min. over $x_1$
     }
@@ -1679,8 +1683,8 @@
   
   Algo:\\
   \begin{algorithm}[H]
-    \Do{until convergence}{
-      solve QP to obtain $9\Delta x, \Delta \lambda, \Delta v)$\\
+    \Do{not until convergence}{
+      solve QP to obtain $(\Delta x, \Delta \lambda, \Delta v)$\\
       line search $(x,\lambda,v)=(x,\lambda,v)+\alpha(\Delta x,\Delta \lambda, \Delta v)$\\
       reapproximate by QP
     }
