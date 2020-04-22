@@ -1777,7 +1777,71 @@
     % &(x-x^*) \perp x^*, \forall x \in x_0 + Nullspace(A)\\
     % &(x-x^*)^Tx^* = (x-x^*)^TA^T(AA^T)^{-1}Y\\
     % &(A(x-x^*))^T(AA^T)^{-1}Y = 0\\
-  \end{align*}  
+  \end{align*}
+
+  \pagebreak
+
+  \section{Problems}
+  \subsection{min. vol. covering ball}
+  Find minimal volume norm ball $B$ covering $B_j, \forall j$, where $B_j$ is a norm ball. Consider 2-norm:\\
+
+  Let $c_j, r_j$ be center, radius of norm ball $B_j$\\
+  Let $c, r$ be center, radius of $B$
+  \begin{align*}
+    &\min_{c,r}\ r\\
+    &s.t. \norm{|c-c_j|+r_j}_2 \leq r, \forall j\\
+    &c^c + (-c_j+r_j)^T(-c_j+r_j) + 2c^T(-c_j+r_j) \leq r, \forall j\\
+    &c^c + (c_j+r_j)^T(c_j+r_j) + 2c^T(c_j+r_j) \leq r, \forall j
+  \end{align*}
+  QCQP problem\\
+
+  Find minimal volume norm ball $B$ covering $B_j, \forall j$, where $B_j$ is a norm ball. Consider $\infty$-norm:
+  \begin{align*}
+    &\min_{c,r}\ r\\
+    &s.t. \norm{|c-c_j|+r_j}_{\infty} \leq r, \forall j\\
+    &c-c_j+r_j \leq r, \forall j\\
+    &-c+c_j+r_j \leq r, \forall j
+  \end{align*}
+  LP problem
+
+  \subsection{polyhedron intersection}
+
+  $D=\set{x\in\R^n: Cx \leq d}$\\
+  $G=\set{x\in\R^n: Cx \leq d}$\\
+  Solve $D \cap G = \O$? using LP:
+  \begin{align*}
+    &\min_{a,b,x}\ 0\\
+    &s.t. a^Tx=b\\
+    &Cx-d \not \leq 0\\
+    &Hx-g \not \leq 0\\
+    \\
+    &\min_{a,b,x,e}\ \sum_i e_i\\
+    &s.t. a^Tx = b\\
+    &Cx-d+e\leq 0\\
+    &Hx-g+e\leq 0\\
+    &e\leq 0
+  \end{align*}
+
+  $f^*$ feasible and $f^* < 0 \implies D \cap G = \O$\\
+  otherwise, $\implies D \cap G \not= \O$\\
+
+  Solve $D \subseteq G $? using LP:\\
+  \begin{algorithm}[H]
+    $verts$ of D $\leftarrow$ solve intersection of halfspace equations of D\\
+    \For{$\forall vert \in D$}{
+      $min\ 0$\\
+      s.t. $Hv \leq g$\\
+      $f^* =
+      \begin{cases}
+        NaN \implies return D \not\subseteq G\\
+        o/w \implies continue
+      \end{cases}
+      $
+    }
+    return $D \subseteq G$
+    \caption{Descent Overview\label{Descent}}
+  \end{algorithm}  
+
 \end{multicols*}
 
 \end {document}
