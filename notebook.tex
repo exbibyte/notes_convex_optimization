@@ -25,6 +25,9 @@
 \DeclareMathOperator*{\argmin}{argmin}
 \newcommand*{\argminl}{\argmin\limits}
 
+\DeclareMathOperator*{\argmax}{argmax}
+\newcommand*{\argmaxl}{\argmax\limits}
+
 \newcommand{\mathleft}{\@fleqntrue\@mathmargin0pt}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}} 
@@ -51,7 +54,7 @@
 \begin{document}
 
 \lhead{Notebook - Convex Optimization}
-\rhead{Bill Liu}
+\rhead{Bill (Yuan) Liu}
 
 \begin{multicols*}{2}
 
@@ -303,13 +306,21 @@
 
   \begin{itemize}
   \item Affine
-  \item Pointwise supremum of convex function
+  \item Pointwise supremum of convex functions
     \begin{itemize}
-    \item distance to farthest point in a set
+    \item distance to farthest point in arbitrary set
     \item support function of set
     \end{itemize}
-  \item Norm
+  \item Partial minimization:\\
+    $g(x,y)\ convex\ in\ x,y, C\ convex \implies\\ min_{y\in C}\ g(x,y)\ convex$
+  \item shortest distance to a convex set
+  \item Any type of norm
   \item Non-negative weighted sum of convex functions
+  \item indicator function
+    $I_C(x) = \begin{cases}
+      0 &, x \in C\\
+      \infty &, x \not\in C
+    \end{cases}$
   \end{itemize}
   
   \subsection{log det X, concave}
@@ -651,7 +662,19 @@
   It is pointwise supremum of convex function, so it is convex.
   
   \vfill\null
-    
+
+  \pagebreak
+  
+  \section{Relaxation}
+
+  projection onto the feasible set\\
+
+  take a larger feasible set and optimize in it instead, resulting optimal value is smaller or equal to the original\\
+
+  equality contraints that are convex but not affine, make them inequalities thus transforming to convex problem
+  
+  \vfill\null
+  
   \pagebreak
 
   \section{Regularized Approximation}
@@ -1369,12 +1392,33 @@
   \vfill\null
   \columnbreak
   \section{Subgradient Method}
-  $f$ convex, but not $C^{1},C^{2}$\\
-  Idea: need a $g$ such that $(\forall x)f(x) \geq f(x_0)+g^T(x-x_0)$\\
-  $g:=$ a subgradient\\
-  Can use $g$ in ellipsoid method\\
+  useful for $f$ convex, but not $C^{1},C^{2}$, and when subgradient of certain form is known\\
   
+  Idea: need a $g$ such that:\\
+  $(\forall x)f(x) \geq f(x_0)+g^T(x-x_0)$\\
+  
+  subdifferential:\\
+  $\partial f(x)=\{ g \in \R^n: g\ \text{is a subgradient of }f \text{ at } x \}$\\
 
+  properties:\\
+  closed and convex for all f (nonconvex as well)\\
+  can be empty for nonconvex f\\
+  $f$ is atleast $C^1\ at\ x \iff \partial f(x) = \{ \nabla f(x) \}$\\
+  $f\ convex \implies f(x^*) = min_x f(x) \iff 0 \in \partial f(x^*)$\\
+  
+  subgradient calculus:
+  \begin{align*}
+    (\forall a>0) &\partial (af) = a \partial f\\
+    \partial(f_1+f_2) &= \partial f_1 + \partial f_2\\
+    g(x)&=f(Ax+b) \implies \partial g(x)=A^T \partial f(Ax+b)\\
+    f(x)&=max_i f_i(x) \implies\\
+        &\partial f(x)=conv\bigg(\bigcup_{i: f_i(x)=f(x)} \partial f_i(x)\bigg)
+  \end{align*}
+
+  subgradient descent:\\
+  eg: $\sum_k^{\infty} t_k^2 < \infty, \sum_k^{\infty} t_k = \infty, x^{k+1} = x^k - t_k g^{k}$\\
+  keep track of the best $x$
+  
   \subsection{Application}
   Decomposition of LP into decoupled systems:\\
   
@@ -1693,6 +1737,142 @@
   
   \vfill\null
   
+  \pagebreak
+
+  \section{Augmented Lagrangian}
+  
+  \section{ADMM}
+
+  Form augmented Lagrangian, minimize wrt. primal variables, maximize dual problem, use coordinate descent for update. Example, for constrained minimization:
+  \begin{align*}
+    & \min_x g(x) + g(x)\\
+    & s.t. Ax + Bx = c\\
+    & L_p = f(x) + g(z) + y^T(Ax+Bz-c)\\
+    & + \frac{\rho}{2} ||Ax+Bz-c||_2^2
+  \end{align*}
+  
+  If multiple rounds of update of primal variable are done before dual variable update, then it is equivalent to method of multipliers where joint optimization is done:
+  \begin{align*}
+    &x^{k+1}, z^{k+1} = \argmin_{x,z} L_p(x,z,y^k)\ [descent]\\
+    &y^{k+1} = \argmax_{y} L_p(x^{k+1},z^{k+1},y)\ [ascent]
+  \end{align*}
+  ADMM update:
+  \begin{align*}
+    x^{k+1} = & \argmin_{x} L_p(x,z^k,y^k)\\
+    z^{k+1} = & \argmin_{z} L_p(x^{k+1},z^k,y^k)\\
+    y^{k+1} = & \argmax_{y} L_p(x^{k+1},z^{k+1},y)\\
+              = & y^k + \rho(Ax^{k+1} + Bz^{k+1} -c)
+  \end{align*}
+
+  alternative formulation with scaled form of ADMM, with the same constrained optimization above:
+  \begin{align*}
+    L_p = & f(x) + g(z) + y^T(Ax+Bz-c)\\
+          & + \frac{\rho}{2} ||Ax+Bz-c||_2^2\\
+    r= & Ax+Bz-c\\
+           u = & \frac{y}{\rho}\\
+           L_p = & f(x) + g(z) + y^T r + \frac{\rho}{2} ||r||_2^2\\
+    y^T r + \frac{\rho}{2} ||r||_2^2 = & \frac{\rho}{2}( \frac{2}{\rho} y^T r + r^T r)\\
+    = & \frac{\rho}{2}(r^T r + \frac{2 y^T r}{\rho} + \frac{ y^T y}{\rho ^2}) - \frac{y^T y}{2\rho}\\
+    = & \frac{\rho}{2} ||r+\frac{y}{\rho}||_2^2 - \frac{1}{2 \rho} ||y||_2^2\\
+    = & \frac{\rho}{2} ||r+u||_2^2 - \frac{\rho}{2}||u||_2^2\\
+    = & \frac{\rho}{2} (||r+u||_2^2 - ||u||_2^2)
+  \end{align*}
+
+  \vfill\null
+    
+  \begin{align*}
+    L_p = & f(x) + g(z) + \frac{\rho}{2} (||r+u||_2^2 - ||u||_2^2)\\
+    x^{k+1} = & \argmin_{x} L_p = \argmin_{x} f(x)\\
+          & + \frac{\rho}{2}(||r+u||)_2^2-||u||_2^2)\\
+    \frac{\partial u}{\partial x} = & 0 \implies\\
+    x^{k+1} = & \argmin_{x} f(x) + \frac{\rho}{2}||r+u||_2^2\\
+    = & \argmin_{x} f(x) + \frac{\rho}{2}||Ax + Bz^k - c + u^k||_2^2\\
+    z^{k+1} = & \argmin_{z} L_p = \argmin_{z} g(z)\\
+          & + \frac{\rho}{2}(||r+u||_2^2-||u||_2^2)\\
+    \frac{\partial u}{\partial z} = & 0 \implies\\
+    z^{k+1} = & \argmin_{z} g(z) + \frac{\rho}{2}||r+u||_2^2\\
+          = & \argmin_{z} g(z) + \frac{\rho}{2}||Ax^{k+1} + Bz - c + u^k||_2^2\\
+    y^{k+1} = & y^k + \rho (Ax^{k+1} +Bz^{k+1} - c)\\
+    \rho u^{k+1} = & \rho u^k + \rho (Ax^{k+1} +Bz^{k+1} - c)\\
+    u^{k+1} = & u^k + Ax^{k+1} +Bz^{k+1} - c
+  \end{align*}
+
+  thus, ADMM scaled form update becomes:
+  \begin{align*}
+    x^{k+1} = & \argmin_{x} f(x) + \frac{\rho}{2}||Ax + Bz^k - c + u^k||_2^2\\
+    z^{k+1} = & \argmin_{z} g(z) + \frac{\rho}{2}||Ax^{k+1} + Bz - c + u^k||_2^2\\
+    u^{k+1} = & u^k + Ax^{k+1} +Bz^{k+1} - c
+  \end{align*}
+
+  residual at iteration k:
+  \begin{align*}
+    &r^k = Ax^k + Bz^k - c
+  \end{align*}
+  sum of residuals:
+  \begin{align*}
+    &u^k = u^0 + \sum_{j=1}^{k} r^j\\
+    &u^{k+1} = u^k + r^{k+1}
+  \end{align*}
+
+
+  \vfill\null
+  
+  \pagebreak
+  
+  Example for constrained convex set minimization:
+  \begin{align*}
+    &\min_x f(x)\\
+    &s.t.\ x \in C
+  \end{align*}
+
+  augmented Lagrangian:
+  \begin{align*}
+    &\min_x f(x) + g(z)\\
+    &g(z) = I_C(z)=
+      \begin{cases}
+        0 &,\ z \in C\\
+        +\infty &,\ o/w
+      \end{cases}\\
+    &s.t.\ x-z=0
+  \end{align*}
+  scaled form ADMM:
+  \begin{align*}
+    r=&x-z\\
+    L_p(x,z,y) =& f(x) + g(z) + y^T(x-z) + \frac{\rho}{2} \norm{x-z}_2^2\\
+               =& f(x) + g(z) + \frac{\rho}{2}(r^T r + \frac{2 y^T r}{\rho} + \frac{y^T y}{\rho^2})\\
+                & - \frac{y^T y}{2 \rho}\\
+    =& f(x) + g(z) + \frac{\rho}{2} \norm{r+\frac{y}{\rho}}_2^2 - \frac{\norm{y}_2^2}{2\rho}\\
+    u=& \frac{y}{\rho}\\
+    L_p(x,z,y) =& f(x) + g(z) + \frac{\rho}{2}(\norm{r+u}_2^2 - \norm{u}_2^2)\\
+    x^{k+1} =& \argmin_x f(x) + \frac{\rho}{2} \norm{r^k+u^k}_2^2\\
+    x^{k+1} =& \argmin_x f(x) + \frac{\rho}{2} \norm{x-z^k+u^k}_2^2\\
+    z^{k+1} =& \argmin_z g(z) + \frac{\rho}{2} \norm{x^{k+1}-z+u^k}_2^2\\
+    z^{k+1} =& \argmin_z I_C(z) + \frac{\rho}{2} \norm{x^{k+1}-z+u^k}_2^2\\
+    z^{k+1} =& \Pi_C(x^{k+1}+u^k)\ [projection\ to\ C]\\
+    \rho u^{k+1} =& \rho u^k + \rho (x^{k+1} - z^{k+1})\\
+    u^{k+1} =& u^k + x^{k+1} - z^{k+1}
+  \end{align*}
+
+  TODO: dual feasibility
+
+  TODO: convergence
+
+  TODO: L1 norm problems
+
+  TODO: genralized Lasso
+
+  TODO: computation shortcuts
+  
+  Reference: Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers [Boyde et al.]
+  
+  \vfill\null
+  
+  \pagebreak
+
+  \section{Subgradient Methods}
+
+  todo
+
   \pagebreak
   
   \section{Appendix}
