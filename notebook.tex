@@ -50,7 +50,6 @@
 
 \SetKwRepeat{Do}{do}{while}
 \SetKwFor{While}{while}{}{end while}%
-
 \begin{document}
 
 \lhead{Notebook - Convex Optimization}
@@ -74,8 +73,13 @@
   
   $int(X) \equiv$ interior of $X$\\
 
-  $[x]^+ \equiv max(x,0)$
-  
+  $[x]^+ \equiv max(x,0)$\\
+
+  $I_C(x) = \begin{cases}
+      0 &, x \in C\\
+      \infty &, x \not\in C
+    \end{cases}$
+
   \vfill\null
   \columnbreak
   \vfill\null
@@ -316,11 +320,7 @@
   \item shortest distance to a convex set
   \item Any type of norm
   \item Non-negative weighted sum of convex functions
-  \item indicator function
-    $I_C(x) = \begin{cases}
-      0 &, x \in C\\
-      \infty &, x \not\in C
-    \end{cases}$
+  \item indicator function $I_C(x)$
   \end{itemize}
   
   \subsection{log det X, concave}
@@ -1865,11 +1865,7 @@
   augmented Lagrangian and scaled form ADMM
   \begin{align*}
     &\min_x f(x) + g(z)\\
-    &g(z) = I_C(z)=
-      \begin{cases}
-        0 &,\ z \in C\\
-        +\infty &,\ o/w
-      \end{cases}\\
+    &g(z) = I_C(z)\\
     &s.t.\ x-z=0
   \end{align*}
   \begin{align*}
@@ -1916,6 +1912,8 @@
 
   todo
 
+  \vfill\null
+  
   \pagebreak
   
   \section{Appendix}
