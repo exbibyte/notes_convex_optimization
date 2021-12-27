@@ -1740,6 +1740,43 @@
   \pagebreak
 
   \section{Augmented Lagrangian}
+
+  Given:
+  \begin{align*}
+    & \min_x f(x)\\
+    & s.t.\ Ax = b
+  \end{align*}
+
+  Add quadratic term and form the Lagrangian:
+  \begin{align*}
+    \max_y \min_x L(x,y) = & \max_y \min_x f(x) + y^T(Ax-b)\\
+                           & + \frac{\rho}{2}\norm{Ax-b}_2^2
+  \end{align*}
+
+  Optimality conditions:
+  \begin{align*}
+    & Ax^* - b = 0\\
+    & \partial f(x^*) + A^Ty^* = 0
+  \end{align*}
+
+  step size parameter for dual variable:
+  \begin{align*}
+    &\nabla_x L(x^{k+1},y^k) = 0\\
+    &\partial f(x^{k+1}) + A^T y^k + \rho A^T(Ax^{k+1}-b)=0\\
+    &\partial f(x^{k+1}) + A^T( y^k + \rho(Ax^{k+1}-b))=0\\
+    &y^{k+1} = y^k + \rho(Ax^{k+1}-b)\\
+    &\partial f(x^{k+1}) + A^T y^{k+1}=0
+  \end{align*}
+  
+  Updates:
+  \begin{align*}
+    x^{k+1} = & \argmin_x f(x) + {y^{k}}^T(Ax-b)\\
+                           & + \frac{\rho}{2}\norm{Ax-b}_2^2\\
+    y^{k+1} = & y^k + \rho(Ax^{k+1}-b)
+  \end{align*}
+
+  \vfill\null
+  \columnbreak
   
   \section{ADMM}
 
@@ -1825,7 +1862,7 @@
     &s.t.\ x \in C
   \end{align*}
 
-  augmented Lagrangian:
+  augmented Lagrangian and scaled form ADMM
   \begin{align*}
     &\min_x f(x) + g(z)\\
     &g(z) = I_C(z)=
@@ -1835,7 +1872,6 @@
       \end{cases}\\
     &s.t.\ x-z=0
   \end{align*}
-  scaled form ADMM:
   \begin{align*}
     r=&x-z\\
     L_p(x,z,y) =& f(x) + g(z) + y^T(x-z) + \frac{\rho}{2} \norm{x-z}_2^2\\
