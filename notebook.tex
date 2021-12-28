@@ -78,7 +78,11 @@
   $I_C(x) = \begin{cases}
       0 &, x \in C\\
       \infty &, x \not\in C
-    \end{cases}$
+    \end{cases}$\\
+   
+  $prox_{f,\lambda}(y) = f(x)+\frac{1}{2 \lambda}\norm{x-v}_2^2$\\
+    
+  $\text{SoftThresholding}_{\lambda}(y) = prox_{\norm{*}_1,\lambda}(y)$
 
   \vfill\null
   \columnbreak
@@ -1523,7 +1527,7 @@
     \caption{Decoupling LP with Subgradient\label{algo:LPSubgradient}}
   \end{algorithm}
 
-  Choosing $\lapha_k$, derivation ultimately comes to:\\
+  Choosing $\alpha_k$, derivation ultimately comes to:\\
   $\sum_{k=1}^{\infty} a_k^2 < \infty$, $\sum_{k=1}^{\infty} a_k \to \infty \implies$\\
   $\lambda^{(k)} \to \lambda^*,k\to\infty$\\
   eg: $\alpha_k = \frac{1}{k}$
@@ -1889,17 +1893,85 @@
   \columnbreak
   
   \subsection{Convergence}
-  TODO
+  \begin{align*}
+    &\text{1. f and g convex, closed, proper}\\
+    &\text{2. unaugmented Lagrandgian has a saddle point}\\
+    &\implies\\
+    &\text{1. residual convergence as }k \rightarrow \infty\\
+    &\text{2. objective convergence as}k \rightarrow \infty\\
+    &\text{3. dual variable convergence as}k \rightarrow \infty
+  \end{align*}
   
+\subsection{Optimality and Stopping Conditions}
+  use primal and dual residual as proxy for stopping\\
+  \begin{align*}
+    &f(x^k)+g(z^k)-p^* \leq -{y^k}^T r^k + (x^k-x^*)^T s^k\\
+    &\norm{x^k-x^*}_2 \leq d\\
+    &f(x^k)+g(z^k)-p^* \leq -{y^k}^T r^k + d \norm{s^k}_2\\
+    &f(x^k)+g(z^k)-p^* \leq \norm{y^k}_2 \norm{r^k}_2 + d \norm{s^k}_2
+  \end{align*}
+
+  make residuals small:
+  \begin{align*}
+    &\norm{f^k}_2 \leq \epsilon^{pri}\\
+    &\norm{s^k}_2 \leq \epsilon^{dual}
+  \end{align*}
+
+  Eg:
+  \begin{align*}
+    &\epsilon^{pri}=\sqrt{p} \epsilon^{abs} + \epsilon^{rel} max(\norm{Ax^k}_2, \norm{Bz^k}_2, \norm{c}_2)\\
+    &\epsilon^{dual}=\sqrt{n} \epsilon^{abs} + \epsilon^{rel} \norm{A^T y^k}_2
+  \end{align*}
+    
   \vfill\null
   \columnbreak
 
-  TODO: dual feasibility
+  \subsection{L1 problems}
   
-  TODO: L1 norm problems
+  least absolute deviation:
+  \begin{align*}
+    &\min_x \norm{Ax-b}_1
+  \end{align*}
+  \begin{align*}
+    &z=Ax-b\\
+    &\min_{x,z} f(x) + g(z)\\
+    &s.t.\ Ax-b-z=0\\
+    &g(z) = \norm{z}_1\\
+    &f(x) = 0\\
+    &L(x,z,y)=\norm{z}_1 + y^T(Ax-b-z)\\
+    &+ \norm{Ax-b-z}_2^2\\
+    &x^{k+1}=\argmin_x L(x,z^k,y^k)\\
+    &\frac{\partial L}{\partial x}=A^T y + \rho A^T(Ax-b-z)=0\\
+    &x^{k+1}=(A^T A)^{-1}A^T(b+z^k-u^k)\\
+    &z^{k+1}=\argmin_z L(x^{k+1},z,y^k)\\
+    &0 \in \partial g(z) -y^k - \rho(Ax^{k+1}-b-z)\\
+    &0 \in \frac{1}{\rho} \partial g(z) -\frac{y^k}{\rho} - (Ax^{k+1}-b-z)\\
+    &0 \in \frac{1}{\rho} \partial g(z) - (Ax+u-b-z)\\
+    &z^{k+1} = \argmin_z g(z) + \frac{\rho}{2}\norm{Ax^{k+1}+u^k-b-z}_2^2\\
+    &z^{k+1} = prox_{||*||_1, \frac{1}{\rho}}(Ax^{k+1}+u^k-b)\\
+    &y^{k+1}=y^k + Ax^{k+1}-b-z^{k+1}
+  \end{align*}
 
+  Huber fitting:
+  \begin{align*}
+    &\min f_{huber}(Ax-b)\\
+    &f_{huber}(v) =
+    \begin{cases}
+      \frac{v^2}{2} &, v \leq 1\\
+      \norm{v}_1 - \frac{1}{2} &, v \ge 1
+    \end{cases}
+  \end{align*}
+  use proximal operator for Huber function instead of L1 when updating $z$:
+  \begin{align*}
+    z^{k+1}=&\frac{\rho}{1+\rho}(Ax^{k+1}-b+u^k)\\
+            &+\frac{1}{1+\rho}ST_{1+\frac{1}{\rho}}(Ax^{k+1}-b+u^k)\\
+    ST &:= \text{SoftThresholding}
+  \end{align*}
+  
   TODO: genralized Lasso
 
+  TODO: dual feasibility
+  
   TODO: computation shortcuts
   
   Reference: Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers [Boyde et al.]
