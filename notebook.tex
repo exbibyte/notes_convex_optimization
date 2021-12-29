@@ -1757,7 +1757,7 @@
                            & + \frac{\rho}{2}\norm{Ax-b}_2^2
   \end{align*}
 
-  Optimality conditions:
+  Optimality conditions for primal and dual:
   \begin{align*}
     & Ax^* - b = 0\\
     & \partial f(x^*) + A^Ty^* = 0
@@ -1765,13 +1765,15 @@
 
   step size parameter for dual variable:
   \begin{align*}
-    &\nabla_x L(x^{k+1},y^k) = 0\\
+    &\nabla_x L(x^{k+1},y^k) = 0\ [by\ definition]\\
     &\partial f(x^{k+1}) + A^T y^k + \rho A^T(Ax^{k+1}-b)=0\\
     &\partial f(x^{k+1}) + A^T( y^k + \rho(Ax^{k+1}-b))=0\\
     &y^{k+1} = y^k + \rho(Ax^{k+1}-b)\\
     &\partial f(x^{k+1}) + A^T y^{k+1}=0
   \end{align*}
-  
+
+  Thus, the step size $\rho$ for $y$ dual variable works to make $(x^{k+1}, y^{k+1})$ dual feasible.
+
   Updates:
   \begin{align*}
     x^{k+1} = & \argmin_x f(x) + {y^{k}}^T(Ax-b)\\
@@ -1968,6 +1970,26 @@
     ST &:= \text{SoftThresholding}
   \end{align*}
 
+  \subsubsection{L1 minimization with equality constraint (basis pursuit)}
+  \begin{align*}
+    &\min_x \norm{x}_1\\
+    &s.t.\ Ax=b
+  \end{align*}
+
+  ADMM:
+  \begin{align*}
+    &\min_{x,z} I_{Ax-b=0}(x) + \norm{z}_1\\
+    &s.t.\ x - z = 0\\
+    &L(x,z,y) = I_{Ax-b=0}(x) + \norm{z}_1 + y^T(x-z)\\
+    &+ \frac{\rho}{2}\norm{x-z}_2^2\\
+    &x^{k+1} = \Pi_{Ax-b=0}(z^k-u^k)\\
+    &z^{k+1} = \text{SoftThresholding}_{\frac{1}{\rho}}(x^{k+1}+u^k)\\
+    &u^{k+1} = u^k + x^{k+1} - z^{k+1}
+  \end{align*}
+  
+  \vfill\null
+  \columnbreak
+
   \subsubsection{general L1 regularized loss}
   \begin{align*}
     \min_x l(x) + \lambda \norm{x}_1,\ l\ convex
@@ -2059,10 +2081,29 @@
         0&, o/w
       \end{cases}
   \end{align*}
-  
-  TODO: dual feasibility
-  
-  TODO: computation shortcuts
+
+  \vfill\null
+  \columnbreak
+    
+  \subsection{computation shortcuts}
+
+  caching factorization
+
+  matrix inversion lemma
+
+  block separability
+
+  component separability
+
+  warm start
+
+  \subsection{distributed techniques}
+
+  \subsubsection{splitting across samples}
+  TODO
+
+  \subsubsection{splitting across features}
+  TODO
   
   Reference: Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers [Boyde et al.]
   
