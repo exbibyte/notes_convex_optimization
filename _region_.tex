@@ -1,4 +1,4 @@
-\documentclass[8pt]{report}
+\message{ !name(notebook.tex)}\documentclass[8pt]{report}
 
 %% \usepackage[fleqn]{amsmath}
 \usepackage[margin=1in]{geometry}
@@ -51,6 +51,9 @@
 \SetKwRepeat{Do}{do}{while}
 \SetKwFor{While}{while}{}{end while}%
 \begin{document}
+
+\message{ !name(notebook.tex) !offset(-3) }
+
 
 \lhead{Notebook - Convex Optimization}
 \rhead{Bill (Yuan) Liu}
@@ -2043,9 +2046,8 @@
     &A^T Ax + \rho F^TFx = A^T b - F^T y + \rho F^T z\\
     &x^{k+1} = (A^T A + \rho F^T F)^{-1}(A^T b + \rho F^T (z^k-u^k))\\
     &\frac{\partial L}{\partial z} = \partial (\lambda \norm{z}_1) + \rho(Fz-z+u)(-1)\\
-    &z^{k+1} = \argmin_z \lambda \norm{z}_1 + \frac{\rho}{2} \norm{Fx-z+u}_2^2\\
-    &z^{k+1} = prox_{\norm{*}_1, \lambda/\rho} (Fx^{k+1}+u^k)\\
-    &u^{k+1} = u^k + Fx^{k+1} - z^{k+1}
+    &z^{k+1} = \lambda \norm{z}_1 + \frac{\rho}{2} \norm{Fx-z+u}_2^2
+    &z^{k+1} = prox_{\norm{*}_1, \lambda/\rho} (Fx+u)
   \end{align*}
     
   Special case for total variation denoising:
@@ -2228,3 +2230,5 @@
 \end{multicols*}
 
 \end {document}
+
+\message{ !name(notebook.tex) !offset(-2234) }
