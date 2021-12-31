@@ -2084,7 +2084,33 @@
 
   \vfill\null
   \columnbreak
-    
+
+  \subsection{consensus}
+  \begin{align*}
+    \min_x \sum_i f_i(x)
+  \end{align*}
+  ADMM:
+  \begin{align*}
+    &\min_x \sum_i f_i(x_i)\\
+    &s.t.\ x_i-z=0\\
+    &L(x,z,y) = \sum_i f_i(x_i)+y_i^T(x_i-z) + \frac{\rho}{2}\norm{x_i-z}_2^2\\
+    &x_i^{k+1}=\argmin_{x_i} f_i(x_i)+{y_i^k}^T(x_i-z^k) + \frac{\rho}{2}\norm{x_i-z^k}_2^2\\
+    &\frac{\partial L}{\partial z} = \sum_i -y_i + \rho (x_i-z)(-1)=0\\
+    &z^{k+1} = \sum_i \frac{y_i}{\rho} + x_i^{k+1}\\
+    &y_i^{k+1} = y_i^k + \rho(x_i^{k+1} - z^{k+1})
+  \end{align*}
+  simplification and averaging:
+  \begin{align*}
+    &z^{k+1} = \frac{\bar{y_i}}{\rho} + \bar{x}^{k+1}\\
+    &\bar{y}^{k+1} = \bar{y}^k + \rho(\bar{x}^{k+1} - z^{k+1})\\
+    &substitution \implies\\
+    &\bar{y}^{k+1} = 0\\
+    &update\ equations:\\
+    &z^{k+1} = \bar{x}^{k+1}\\
+    &x_i^{k+1}=\argmin_{x_i} f_i(x_i)+{y_i^k}^T(x_i-\bar{x}^k) + \frac{\rho}{2}\norm{x_i-\bar{x}^k}_2^2\\
+    &y_i^{k+1} = y_i^k + \rho(x_i^{k+1} - \bar{x}^{k+1})
+  \end{align*}  
+
   \subsection{computation shortcuts}
 
   caching factorization
