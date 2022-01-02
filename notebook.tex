@@ -280,7 +280,15 @@
   $\tilde{h_i}$ becomes exponential of affine function\\
   $\tilde{f_i} = log(f_i)$ becomes log sum exp (convex)\\
   If all constraints and objective are monomials, reduces to LP after transform.
-  \subsection*{SDP}
+
+  \subsection*{Generlized Inequality, Conic}
+    \begin{align*}
+    \min_x\ c^Tx\ s.t.:\\
+    F x + g \preceq_K 0\\
+    Ax=b
+    \end{align*}
+    
+  \subsection*{Gneralized Inequality, SDP}
   general, standard, inequality forms
   \begin{align*}
     \min_x\ c^Tx\ s.t.:\\
@@ -308,6 +316,8 @@
     diag(Gx-h, F^{(1)}(x),..,F^{(m)}(x)) \preceq 0\\
   \end{align*}  
   if all matrices are diagonal, reduces to LP
+
+  \vfill\null
   \pagebreak
 
   \section{Convex/Concave Functions}
@@ -2105,12 +2115,14 @@
     &\bar{y}^{k+1} = \bar{y}^k + \rho(\bar{x}^{k+1} - z^{k+1})\\
     &substitution \implies\\
     &\bar{y}^{k+1} = 0\\
-    &update\ equations:\\
     &z^{k+1} = \bar{x}^{k+1}\\
+    &update\ equations:\\
     &x_i^{k+1}=\argmin_{x_i} f_i(x_i)+{y_i^k}^T(x_i-\bar{x}^k) + \frac{\rho}{2}\norm{x_i-\bar{x}^k}_2^2\\
     &y_i^{k+1} = y_i^k + \rho(x_i^{k+1} - \bar{x}^{k+1})
   \end{align*}  
 
+  can also add another regularization term to objective, in which case the z update is retained
+  
   \subsection{computation shortcuts}
 
   caching factorization
