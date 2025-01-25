@@ -1,4 +1,4 @@
-\documentclass[8pt]{report}
+\documentclass[8pt]{extarticle}
 
 %% \usepackage[fleqn]{amsmath}
 \usepackage[margin=1in]{geometry}
@@ -44,16 +44,24 @@
 \setlength{\abovedisplayshortskip}{0pt}
 \setlength{\belowdisplayshortskip}{0pt}
 
+\usepackage{mdframed}
+
 \usepackage{multicol}
 
 \usepackage[tiny]{titlesec}
+
+\usepackage{listings}% http://ctan.org/pkg/listings
+\lstset{
+  basicstyle=\ttfamily\small,
+  mathescape
+}
 
 \SetKwRepeat{Do}{do}{while}
 \SetKwFor{While}{while}{}{end while}%
 \begin{document}
 
-\lhead{Notebook - Convex Optimization}
-\rhead{Bill (Yuan) Liu}
+\lhead{Notebook - Convex Optimization, Yuan Liu}
+% \rhead{Bill (Yuan) Liu}
 
 \begin{multicols*}{2}
 
@@ -674,10 +682,91 @@
     dom(S_C) = \set{x: \sup_{y\in C} x^Ty < \infty}
   \end{align*}
   It is pointwise supremum of convex function, so it is convex.
+
+
+  \subsection{Lagrangian}
+  original problem:
+  \begin{align*}
+    minimize\ &f_0(x)\ s.t.:\\
+    &f_i(x) \preceq 0, \forall i \in [0..m)\\
+    &h_i(x) = 0, \forall i \in [0..p)\\
+    &x \in R^n
+  \end{align*}
+
+  idea: move constraints into the objective function and create cost when constraints are violated or approaching violation
+  
+  the Lagrangian, $L: R^n \rightarrow R^m \rightarrow R^p \rightarrow R$, is:
+  \begin{align*}
+    L(x,\lambda, v) = f_0(x) + \sum_i^m \lambda_i f_i(x) + \sum_i^p v_i h_i(x)
+  \end{align*}
+
+  $\lambda, v$ are dual variables / Lagrange multipliers associated with inequalities and equalities
+
+  Lagrangian dual function, $g: R^m \rightarrow R^p \rightarrow R$, is:
+  \begin{align*}
+    &g(\lambda, v) = \inf_{x \in D} L(x,\lambda,v)\\
+    &f(\lambda, v) = \inf_{x \in D} (f_0(x) + \sum_i^m \lambd_i f_i(x) + \sum_i^p v_i h_i(x)))\\
+    &D = (\bigcap_i^m dom\ f_i) \cap (\bigcap_i^p dom\ h_i)
+  \end{align*}
+  pointwise infimum of family of affine functions of $(\lambda, v)$ $\implies$ g is concave wrt. $\lambda, v$ unconditionally
+
+  \subsubsection{lower bound property of dual function}
+
+  $(\forall \lambda \succeq 0) (\forall v) g(\lambda, v) \leq p^*$ where $p^*$ is an optimal solution
+
+  proof:
+  $x$ feasible $\implies$
+  \begin{align*}
+    &f_i(x) \preceq 0, \forall i \in 0..m\\
+    &h_i(x) = 0, \forall i \in 0..p\\
+    &\lambda_i f_i(x) \preceq 0, \forall \lambda_i \succeq 0\\
+    &v_i h_i(x) = 0, \forall v_i\\
+    &\sum_i \lambda_i f_i(x) \leq 0\\
+    &\sum_i v_i h_i(x) = 0\\
+    &\sum_i \lambda_i f_i(x) + \sum_i v_i h_i(x) \leq 0\\
+    &L(x, \lambda, v) = f_0(x) + \sum_i \lambda_i f_i(x) + \sum_i v_i h_i(x) \leq f_0(x)\\
+    &g(\lambda, v) = \inf_{x \in D} L(x, \lambda, v) \leq L(x', \lambda, v) \leq f_0(x'), (\forall x'\ feasible)\\
+    &g(\lambda, v) \leq f_0(x'), \forall x'\ feasible
+  \end{align*}
+
+  dual feasible $(\lambda, v)$:\\
+  $g(\lambda, v)$ nontrivial only when:\\
+  $g(\lambda, v) > -\infty \iff \lambda \succeq 0, (\lambda, v) \in dom\ g$
+
+  \vfill\null
+  \columnbreak
+    
+  \subsection{Conjugate Function}
+
+  conjugte function $f^*$ of $f$ defined as:
+
+  $f^*(y) = \sup_{x \in dom\ f} (y^Tx - f(x))$ where $f: R^n \rightarrow R$
+
+  relation to Lagrange dual function, $L$:
+
+  original problem:
+  \begin{align*}
+    minimize\ &f_0(x)\ s.t.:\\
+    &f_i(x) \preceq 0, \forall i \in [0..m)\\
+    &h_i(x) = 0, \forall i \in [0..p)\\
+    &x \in R^n
+  \end{align*}
+  \begin{align*}
+    L(x, \lambda, v) &= f_0(x) + \lambda^T(Ax-b) + v^T(Cx-d)\\
+    g(\lambda, v) &= \inf_{x \in D}(f_0(x) + \lambda^T(Ax-b) + v^T(Cx-d))\\
+                    &= \inf_{x \in D}(-b^T \lambda -d^T v + (A^T\lambda + C^Tv)^T x + f_0(x))\\
+                    &= -b^T \lambda -d^T v + \inf_{x \in D}((A^T\lambda + C^Tv)^T x + f_0(x))\\
+    \inf(a) &= - \sup(-a)\\
+    g(\lambda, v) &= -b^T \lambda -d^T v -\sup_{x \in D}((-A^T\lambda - C^Tv)^T x - f_0(x))\\
+                    &= -b^T \lambda -d^T v - f^*(-A^T\lambda - C^Tv)
+  \end{align*}
+
+  $-A^T\lambda - C^Tv$ is the linear coefficient of the term with $x$
+  
+  $dom\ g = \{ (\lambda, v): -A^T\lambda - C^Tv \in dom\ f_0^* \}$
   
   \vfill\null
-
-  \pagebreak
+  \columnbreak
   
   \section{Relaxation}
 
