@@ -460,14 +460,41 @@
 
   \section{Constraint Qualifications}
 
+  $p^* \equiv$ optimal of primal
+  
+  $d^* \equiv$  optimal of dual
+
+  $d^* \leq p^*$
+  
+  optimality duality gap $\equiv p^* - d^*$
+  
+  constraint qualifications $\equiv$ conditions that confirms a problem has strong duality (optimal duality gap of 0 between primal and dual solution)
+
+  an example constraint qualification is Slater's conditions
+
   \subsection{Slater's Constraint Qual.}
-  Optimal solution is in relative interior: $x^* \in relint(S)$\\
   
-  Inequalities $(\forall i)f_i(x)$ convex $\wedge\ f_i(x)<0 \implies$ Slater's constraint satisfied.\\
+  $x^* \in relint(D)$, s.t.
   
-  Inequalities $(\forall i)f_i(x)$ affine $\implies (\forall i)f_i(x) \leq 0 \wedge (\exists i) f_i(x) < 0 \implies$ Slater's constraint satisfied.\\
+  $f_i(x)<0, (\forall i) f_i(x)$ convex
   
-  Achieving Slater's constraint implies 0 duality gap.
+  $Ax=b$
+
+  $\implies$ strong duality and problem is convex
+
+  \subsection{Slater's Constaint Qual., Variant}
+  $x^* \in relint(D)$ and
+  
+  partition inequalities $f_0, .., f_a, .., f_{n-1}$, s.t.
+  
+  $f_i(x) \leq 0 \wedge f_i(x)$ affine, $\forall i \in [0,a)$
+  
+  $f_i(x) < 0 \wedge f_i(x)$ convex, $\forall i \in [a, n)$
+  
+  $Ax = b$
+  
+  $\implies$ strong duality
+  
   \subsection{KKT}
   Assumes optimality achieved with 0 duality gap: $\nabla L(x^*,\lambda^*,v^*)=0$
   \begin{align*}
@@ -742,7 +769,25 @@
 
   $f^*(y) = \sup_{x \in dom\ f} (y^Tx - f(x))$ where $f: R^n \rightarrow R$
 
-  relation to Lagrange dual function, $L$:
+  \subsubsection{interpretation with supporting hyperplane}
+
+  given a fixed slope/normal vector, $y$ of a hyperplane, a supporting hyperplane for $V = epi\ f$ satisfies the following:
+  \begin{align*}
+    &f(x) \geq y^T x - \alpha, \forall x \in V, \exists \alpha\\
+    &\alpha \geq y^T x - f(x), \forall x \in V, \exists \alpha\\
+    &\alpha \geq \sup_{x \in V} (y^T m - f(x))
+  \end{align*}
+  where we simply pick the affine minorant (best / upper lower bound) of $f$ that satisfies constraint of the supporting hyperplane (other candidates would not work since a hyperplane defined using one of those would not capture all elements of the $epi\ f$ on one side of the hyperplane)
+
+  $\alpha = f^*(y) = \sup_{x \in V}(y^T x - f(x))$
+
+  $f^*(y) = \infty \implies$ no affine minorant of $f$ with slope $y$ exists
+  
+  $f^*(y) < \infty \implies$ $y^T x - f(x)$ is the best choice of affine minorant of $f$ with slope $y$
+
+  for each $y$, we obtain a supporting hyperplane $\implies$ the set of these supporting hyperplanes can define the convex envelope of $epi\ f$ by taking the intersection of all of them ($f^*(y)$ is convex unconditionally; equivalently proved using pointwise supremum of affine functions of $y$)
+  
+  \subsubsection{relation to Lagrange dual function, $L$}
 
   original problem:
   \begin{align*}
