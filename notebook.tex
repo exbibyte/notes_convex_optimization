@@ -230,302 +230,35 @@
   \columnbreak
   \vfill\null
   \columnbreak
-  
-  \section{Problem Types}
-  \subsection*{LP}
-  standard, inequality, general forms
-  \begin{align*}
-    \min_x c^Tx\ s.t.:\\
-         Ax = b\\
-         x \succeq 0
-  \end{align*}
 
-  \begin{align*}
-    \min_x c^Tx\ s.t.:\\
-    Ax \preceq b
-  \end{align*}
-
-  \begin{align*}
-    \min_x c^Tx+d\ s.t.:\\
-    Gx \preceq h\\
-    Ax = b
-  \end{align*}
-  
-  \subsection*{QP}
-  \begin{align*}
-    \min_x \frac{1}{2} x^T P x + q^T x + r\ s.t.:\\
-    Gx \leq h\\
-    Ax = b
-  \end{align*}
-  \subsection*{QCQP}
-  \begin{align*}
-    \min_x \frac{1}{2}x^TP_0x + q_0^Tx + r_0, s.t.:\\
-    \frac{1}{2}x^TP_ix + q_i^Tx + r_i \leq 0, \forall i\\
-    Ax=b
-  \end{align*}
-  \subsection*{SOCP}
-  \begin{align*}
-    \min_x  f^T x\ s.t.:\\
-    \norm{A_ix+b_i}_2 \leq c_i^Tx+d_i, \forall i\\
-    Fx = g
-  \end{align*}
-  \begin{align*}
-    (\forall i) b_i=0 \implies LP\\
-    (\forall i) c_i=0 \implies QCQP
-  \end{align*}
-  \vfill\null
-  \columnbreak
-  \subsection*{GP}
-  \begin{align*}
-    \min_x  f_0(x)\ s.t.:\\
-    f_i(x) \leq 1, \forall i\\
-    h_i(x) = 1, \forall i\\
-    f_i\ is\ a\ posynomial := \sum_i h_i\\
-    h_i\ is\ a\ monomial := cx_1^{a_1}x_2^{a_2}.., c>0, a_i \in \R\\
-  \end{align*}
-  Use transform of objective and constraint functions:\\
-  $y_i=log x_i, x_i=e^{y_i}$\\
-  $\tilde{h_i}$ becomes exponential of affine function\\
-  $\tilde{f_i} = log(f_i)$ becomes log sum exp (convex)\\
-  If all constraints and objective are monomials, reduces to LP after transform.
-
-  \subsection*{Generlized Inequality, Conic}
-    \begin{align*}
-    \min_x\ c^Tx\ s.t.:\\
-    F x + g \preceq_K 0\\
-    Ax=b
-    \end{align*}
-    
-  \subsection*{Gneralized Inequality, SDP}
-  general, standard, inequality forms
-  \begin{align*}
-    \min_x\ c^Tx\ s.t.:\\
-    LMI:\ \sum_i^n x_i F_i + G \preceq_K 0\\
-    Ax=b\\
-    x\in\R^n\\
-    F_i,G \in S^m, K\in S_+^m
-  \end{align*}
-  \begin{align*}
-    \min_X\ tr(CX) s.t.:\\
-    tr(A_iX)=b_i, \forall i\\
-    X \succeq 0
-  \end{align*}
-  \begin{align*}
-    \min_x\ c^Tx\ s.t.:\\
-    \sum_i^n x_i A_i \preceq_K B\\
-    Ax=b\\
-    B,A_i \in S^m, K\in S_+^m
-  \end{align*}
-  concatenating constraints:
-  \begin{align*}
-    F^{(i)}(x) = \sum_j x_j F_i^{(i)} + G^{(i)} \preceq 0\\
-    Gx \preceq h\\
-    \implies\\
-    diag(Gx-h, F^{(1)}(x),..,F^{(m)}(x)) \preceq 0\\
-  \end{align*}  
-  if all matrices are diagonal, reduces to LP
-
-  \vfill\null
-  \pagebreak
-
-  \section{Convex/Concave Functions}
-
-  \begin{itemize}
-  \item Affine
-  \item Pointwise supremum of convex functions
-    \begin{itemize}
-    \item distance to farthest point in arbitrary set
-    \item support function of set
-    \end{itemize}
-  \item Partial minimization:\\
-    $g(x,y)\ convex\ in\ x,y, C\ convex \implies\\ min_{y\in C}\ g(x,y)\ convex$
-  \item shortest distance to a convex set
-  \item Any type of norm
-  \item Non-negative weighted sum of convex functions
-  \item indicator function $I_C(x)$
-  \end{itemize}
-  
-  \subsection{log det X, concave}
-  \begin{align*}
-    let\ X=Z+tV \succ 0\\
-    f=log det(Z+tV)\\
-    f=log det(Z^{-0.5}(I+tZ^{-0.5}VZ^{0.5})Z^{0.5})\\
-    f=log (det(Z^{-0.5})det(I+tZ^{-0.5}VZ^{0.5})det(Z^{0.5}))\\
-    f=log (det(Z^{0})det(I+tZ^{-0.5}VZ^{0.5}))\\
-    f=log det(I+tZ^{-0.5}VZ^{0.5})\\
-    f=log \Pi_i (1+\lambda_i t)\\
-    f=\sum_i log(1+\lambda_i t)\\
-    \frac{\partial f}{\partial t} = \sum_i \frac{\lambda_i}{1+\lambda_i t}\\
-    \frac{\partial^2 f}{\partial t^2} = \sum_i \frac{-\lambda_i^2}{(1+\lambda_i t)^2} = -\sum_i \frac{\lambda_i^2}{(1+\lambda_i t)^2} \leq 0\\
-    \nabla^2 f \leq 0 \iff f\ concave\\
-  \end{align*}
-
-  \vfill\null
-  \columnbreak
-    
-  \subsection{log $\sum_i exp(x_i)$, convex}
-  \begin{align*}
-    \nabla^2 f = \frac{1}{(1^Tz)^2} (1^Tz diag(z) -zz^T)\\
-    v^T zz^T v = det(v^T zz^T v) = det(vv^T zz^T)\\
-    v^T zz^T v = \sum_j \sum_i z_j z_i v_j v_i\\
-    v^T zz^T v = (\sum_j z_j z_j)(\sum_i z_i v_i)\\
-    v^T zz^T v = (\sum_i z_i v_i)^2\\
-    use\ Holder's\ Inequality:\\
-    \|a\|_2^2 \|b\|_2^2 \geq |a^Tb|^2\\
-    let\ a = z_i^{0.5}, b=v_iz_i^{0.5}\\
-    1^Tz(\sum_i v_i^2 z_i)-(\sum_i z_i v_i)^2 \geq 0\\
-    v^T\nabla^2f v = \frac{1}{(1^Tz)^2} \bigg(1^Tz(\sum_i v_i^2 z_i)-(\sum_i z_i v_i)^2\bigg) \geq 0\\
-    \nabla^2f \geq 0 \iff f\ convex
-  \end{align*}  
-  
-  \subsection{geometric mean on $R_{++}^n$, concave}
-  \begin{align*}
-    f=(\Pi_i x_i)^{\frac{1}{n}}\\
-    \frac{\partial}{\partial x_i} f = \frac{1}{n}(\Pi_i x_i)^{\frac{1}{n}-1}\Pi_{j\not=i}x_j\\
-    \frac{\partial^2}{\partial x_i^2} f = \frac{1}{n}(\frac{1}{n}-1)(\Pi_i x_i)^{\frac{1}{n}-2}(\Pi_{j\not=i}x_j)^2\\
-    \frac{\partial^2}{\partial x_i^2} f = \frac{1}{n}(\frac{1}{n}-1)\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i^2}\\
-    \frac{\partial^2}{\partial x_i x_k} f = \frac{1}{n^2}\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i x_k}, i\not=k\\
-    \frac{\partial^2}{\partial x_i x_k} f = \frac{1}{n^2}\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i x_k} -\delta_{ik} \frac{1}{n}\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i^2}
-    \\
-    v^T \nabla^2 f v = \frac{-(\Pi_i x_i)^{\frac{1}{n}}}{n^2}(n \sum_i \frac{v_i^2}{x_i^2} - (\sum_i \frac{v_i}{x_i})^2)\\\
-    apply\ Cauchy\ Schwartz\ Inequality:\\
-    let\ a=\bold{1}, b_i = \frac{v_i}{x_i}\\
-    \|\bold{1}\|_2^2 (\sum_i \frac{v_i^2}{x_i}) \geq (\sum_i \frac{v_i}{x_i})^2\\
-    n \sum_i \frac{v_i^2}{x_i^2} - (\sum_i \frac{v_i}{x_i})^2 \geq 0\\
-    v^T \nabla^2 f v \leq 0 \iff f\ concave
-  \end{align*}
-
-  \subsection{quadratic over linear, convex}
-  \begin{align*}
-    f(x,y) = \frac{h(x)}{g(y)}, g(y) \ linear, g(y) \in R_+\\
-    \nabla^2 f = vv^T \ is\ PSD \iff f\ convex
-  \end{align*}
-
-  \vfill\null
-  \columnbreak
-  
-  \section{Composition of functions}
-
-  Mnemonic derivation from scalar composite function
-  \begin{align*}
-    f=h(g(x))\\
-    f'=g'(x)h'(g(x))\\
-    f''=g''(x)h'(g(x)) + (g'(x))^2 h''(g(x))\\
-    \\
-    \text{h convex \& non-decreasing, g convex } \implies \text{ f convex}\\
-    h'' \geq 0, g''(x) \geq 0, h'(g(x)) \geq 0 \implies f'' \geq 0\\
-    \\
-    \text{h convex \& non-increasing, g concave } \implies \text{ f convex}\\
-    h'' \geq 0, g''(x) \leq 0, h'(g(x)) \leq 0 \implies f'' \geq 0\\
-    \\
-    \text{h concave \& non-decreasing, g concave } \implies \text{ f concave}\\
-    h'' \leq 0, g''(x) \leq 0, h'(g(x)) \geq 0 \implies f'' \leq 0\\
-    \\
-    \text{h concave \& non-increasing, g convex } \implies \text{ f concave}\\
-    h'' \leq 0, g''(x) \geq 0, h'(g(x)) \leq 0 \implies f'' \leq 0\\
-  \end{align*}
-
-  \vfill\null
-  
-  \pagebreak
-  
-  \section{Convexity Preservation of Sets}
-  \subsection{Intersection}
-  \begin{align*}
-    (\forall \alpha \in A) S_{\alpha}\text{ is convex cone} \implies\\
-    \cap_{\alpha \in A} S_{\alpha} \text{ is convex cone}
-  \end{align*}
-  Any closed convex set can be represented by possibly infinitely many half spaces.\\
-  
-  \subsection{Affine functions}
-  let $f(x)=Ax+b, f:\R^n \to \R^m$\\
-  then if S is a convex set we have:
-  \begin{itemize}
-  \item project forward: $f(S) = \{ f(X) : X \in S \}$ is convex
-  \item project back: $f^{-1}(S) = \{ X : f(X) \in S \}$ is convex
-  \end{itemize}
-  Example:
-  \begin{align*}
-    C = \{ y : y=Ax+b, \norm{x} \leq 1\}
-  \end{align*}
-  $\norm{x} \leq 1$ is convex, $Ax+b$ is affine $\implies$ C is convex\\
-  Example:
-  \begin{align*}
-    C = \{ x : \norm{Ax+b} \leq 1 \}
-  \end{align*}
-    $\{y: \norm{y} \leq 1 \}$ is convex $\wedge$ $y$ is an affine function of $x \implies$ C is convex\\
-
-  \vfill\null
-  \pagebreak
-
-  \section{Constraint Qualifications}
-
-  $p^* \equiv$ optimal of primal
-  
-  $d^* \equiv$  optimal of dual
-
-  $d^* \leq p^*$
-  
-  optimality duality gap $\equiv p^* - d^*$
-  
-  constraint qualifications $\equiv$ conditions that confirms a problem has strong duality (optimal duality gap of 0 between primal and dual solution)
-
-  an example constraint qualification is Slater's conditions
-
-  \subsection{Slater's Constraint Qual.}
-  
-  $x^* \in relint(D)$, s.t.
-  
-  $f_i(x)<0, (\forall i) f_i(x)$ convex
-  
-  $Ax=b$
-
-  $\implies$ strong duality and problem is convex
-
-  \subsection{Slater's Constaint Qual., Variant}
-  $x^* \in relint(D)$ and
-  
-  partition inequalities $f_0, .., f_a, .., f_{n-1}$, s.t.
-  
-  $f_i(x) \leq 0 \wedge f_i(x)$ affine, $\forall i \in [0,a)$
-  
-  $f_i(x) < 0 \wedge f_i(x)$ convex, $\forall i \in [a, n)$
-  
-  $Ax = b$
-  
-  $\implies$ strong duality
-  
-  \subsection{KKT}
-  Assumes optimality achieved with 0 duality gap: $\nabla L(x^*,\lambda^*,v^*)=0$
-  \begin{align*}
-    &L(x^*,\lambda^*,v^*) = f_0(x^*) + \sum_i \lambda_i^* f_i(x^*) + \sum_i v_i h_i(x^*)\\
-    &\nabla L(x^*,\lambda^*,v^*) = \nabla f_0(x^*) + \sum_i \lambda_i^* \nabla f_i(x^*) + \sum_i v_i \nabla h_i(x^*)
-  \end{align*}
-  We have the constraints:
-  \begin{align*}
-    &f_i(x^*) \leq 0\\
-    &\lambda_i^* \geq 0\\
-    &h_i(x^*)=0\\
-    &\lambda_i^* f_i(x^*)=0\\
-    &\nabla L(x^*,\lambda^*,v^*) = \nabla f_0(x^*) + \sum_i \lambda_i^* \nabla f_i(x^*) + \sum_i v_i \nabla h_i(x^*)
-  \end{align*}
-
-  Primal inequality constraints convex and equality constraints affine and KKT satisfied $\implies$ 0 duality gap with specified points for primal and dual. (sufficient).\\
-
-  If Slater's constraint satisfied then the above is sufficient and necessary:\\
-  Primal inequality constraints convex and equality constraints affine and KKT satisfied $\iff$ 0 duality gap with specified points for primal and dual.\\
-  
-  \vfill\null
-  
-  \pagebreak
-  
   \section{Definitions}
 
   \subsection{Convex Function}
+  assume $dom\ f$ is convex
+  
+  0th order:
   \begin{align*}
-    f(\theta x +(1-\theta) y) \leq \theta f(x) + (1-\theta) f(y), \forall \theta = [0,1]\\
+    &(\forall x,y \in dom\ f) (\forall \theta \in [0,1])\\
+    &f(\theta x +(1-\theta) y) \leq \theta f(x) + (1-\theta) f(y)\\
+    &\iff f\ convex\\
+    \\
+    &(\forall x \neq y \in dom\ f) (\forall \theta \in (0,1))\\
+    &f(\theta x +(1-\theta) y) < \theta f(x) + (1-\theta) f(y)\\
+    &\iff f\ stricly\ convex
   \end{align*}
-  For convenience we sometimes define an extended value function:\\
+  1st order:
+  \begin{align*}
+    &(\forall x,y \in dom\ f)\\
+    &f(x) + \nabla f(x)^T (y-x) \leq f(y)\\
+    &\iff f\ convex
+  \end{align*}
+  2nd order:
+  \begin{align*}
+    &(\forall x \in dom\ f)\\
+    &\nabla^2 f(x) \succ 0 \iff f\ convex\\
+    &\nabla^2 f(x) \succeq 0 \implies f\ stricly\ convex
+  \end{align*}
+  extended value function:
   \begin{align*}
     \tilde{f}(x) = \begin{cases}
       f(x), & x \in dom(f)\\
@@ -547,6 +280,9 @@
   
  $f$ is convex function $\iff epi(f)$ is convex set\\
 
+ \vfill\null
+ \columnbreak
+ 
  \subsection{First order condition}
  Suppose f is differentiable and domain of f is convex. Then:\\
  f convex $\iff \\ (\forall x,x_0 \in dom(f)) f(x) \geq f(x_0) + \nabla f(x_0)^T(x-x_0)$\\
@@ -575,7 +311,7 @@
   take $y\to x: 0 \leq f''(x)$\\
   $f''(x) \geq \frac{f'(x+\delta x)-f'(x)}{\delta x}$\\
 
-  conversely, suppose that $f'(z) \geq 0, \forall z \in dom(f)$, take $x,y \in dom(f)$ WLOG $x < y$\\
+  conversely, suppose that $f'(z) \geq 0, \forall z \in dom(f)$, take $x,y \in dom(f)$ W.L.O.G. $x < y$\\
   $\int_x^y f''(z)(y-z) dz \geq 0$\\
   $f''(z) \geq 0, (y-z) \geq 0$\\
   $I_1 = \int_x^y f''(z)y dz =  y(f'(y)-f'(x))$\\
@@ -710,8 +446,311 @@
   \end{align*}
   It is pointwise supremum of convex function, so it is convex.
 
+  \vfill\null
+  \columnbreak
+    
+  \section{Convex/Concave Functions}
 
-  \subsection{Lagrangian}
+  \begin{itemize}
+  \item affine functions
+  \item pointwise supremum of convex functions
+    \begin{itemize}
+    \item distance to farthest point in arbitrary set
+    \item support function of set
+    \end{itemize}
+  \item partial minimization:\\
+    $g(x,y)\ convex\ in\ x,y, C\ convex \implies\\ min_{y\in C}\ g(x,y)\ convex$
+  \item shortest distance to a convex set
+  \item any type of norm
+  \item non-negative weighted sum of convex functions
+  \item indicator function $I_C(x)$
+  \item $f(x)=e^{ax}, dom\ f=\R, \forall a \in \R \implies f$ convex
+  \item $f(x)=x^a, dom\ f=\R_{++}, a \geq 1 \vee a \le 0 \implies f$ convex
+  \item $f(x)=x^a, dom\ f=\R_{++}, a \in [0,1] \implies f$ convex
+  \item $f(x)=|x|^p, dom\ f = \R, p \geq 1 \imples f$ convex
+  \item $f(x) = log(x), dom\ f = \R_{++} \implies f$ concave
+  \item $f(x) = x log(x), dom\ f = \R_{++} \vee \R_{+} \implies f$ convex
+  \item $f(x)=\norm{x}_p, dom\ f = \R, \implies f$ convex
+  \item $f(x) = \max_i(x_i), dom\ f = \R^n, \implies f$ convex
+  \item $f(x,y) = \frac{x^2}{y}, dom\ f = \R \times \R_{++}, \implies f$ convex
+  \item $f(x) = log(\sum_i e^{x_i}), dom\ f = \R^n, \implies f$ convex\\
+    note: $\max_i x_i \leq f(x) \leq \max_i x_i + log(n)$
+  \item $f(x) = (\prod_i^n x_i)^{\frac{1}{n}}, dom\ f = \R_{++}^n, \implies f$ concave
+  \item $f(x) = log(det(X)), dom\ f = S_{++}^n, \implies f$ concacave
+  \end{itemize}
+  
+  \subsection{log det X, concave}
+  \begin{align*}
+    let\ X=Z+tV \succ 0\\
+    f=log det(Z+tV)\\
+    f=log det(Z^{-0.5}(I+tZ^{-0.5}VZ^{0.5})Z^{0.5})\\
+    f=log (det(Z^{-0.5})det(I+tZ^{-0.5}VZ^{0.5})det(Z^{0.5}))\\
+    f=log (det(Z^{0})det(I+tZ^{-0.5}VZ^{0.5}))\\
+    f=log det(I+tZ^{-0.5}VZ^{0.5})\\
+    f=log \Pi_i (1+\lambda_i t)\\
+    f=\sum_i log(1+\lambda_i t)\\
+    \frac{\partial f}{\partial t} = \sum_i \frac{\lambda_i}{1+\lambda_i t}\\
+    \frac{\partial^2 f}{\partial t^2} = \sum_i \frac{-\lambda_i^2}{(1+\lambda_i t)^2} = -\sum_i \frac{\lambda_i^2}{(1+\lambda_i t)^2} \leq 0\\
+    \nabla^2 f \leq 0 \iff f\ concave\\
+  \end{align*}
+
+  \vfill\null
+  \columnbreak
+    
+  \subsection{log $\sum_i exp(x_i)$, convex}
+  \begin{align*}
+    \nabla^2 f = \frac{1}{(1^Tz)^2} (1^Tz diag(z) -zz^T)\\
+    v^T zz^T v = det(v^T zz^T v) = det(vv^T zz^T)\\
+    v^T zz^T v = \sum_j \sum_i z_j z_i v_j v_i\\
+    v^T zz^T v = (\sum_j z_j z_j)(\sum_i z_i v_i)\\
+    v^T zz^T v = (\sum_i z_i v_i)^2\\
+    use\ Holder's\ Inequality:\\
+    \|a\|_2^2 \|b\|_2^2 \geq |a^Tb|^2\\
+    let\ a = z_i^{0.5}, b=v_iz_i^{0.5}\\
+    1^Tz(\sum_i v_i^2 z_i)-(\sum_i z_i v_i)^2 \geq 0\\
+    v^T\nabla^2f v = \frac{1}{(1^Tz)^2} \bigg(1^Tz(\sum_i v_i^2 z_i)-(\sum_i z_i v_i)^2\bigg) \geq 0\\
+    \nabla^2f \geq 0 \iff f\ convex
+  \end{align*}  
+  
+  \subsection{geometric mean on $R_{++}^n$, concave}
+  \begin{align*}
+    f=(\Pi_i x_i)^{\frac{1}{n}}\\
+    \frac{\partial}{\partial x_i} f = \frac{1}{n}(\Pi_i x_i)^{\frac{1}{n}-1}\Pi_{j\not=i}x_j\\
+    \frac{\partial^2}{\partial x_i^2} f = \frac{1}{n}(\frac{1}{n}-1)(\Pi_i x_i)^{\frac{1}{n}-2}(\Pi_{j\not=i}x_j)^2\\
+    \frac{\partial^2}{\partial x_i^2} f = \frac{1}{n}(\frac{1}{n}-1)\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i^2}\\
+    \frac{\partial^2}{\partial x_i x_k} f = \frac{1}{n^2}\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i x_k}, i\not=k\\
+    \frac{\partial^2}{\partial x_i x_k} f = \frac{1}{n^2}\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i x_k} -\delta_{ik} \frac{1}{n}\frac{(\Pi_i x_i)^{\frac{1}{n}}}{x_i^2}
+    \\
+    v^T \nabla^2 f v = \frac{-(\Pi_i x_i)^{\frac{1}{n}}}{n^2}(n \sum_i \frac{v_i^2}{x_i^2} - (\sum_i \frac{v_i}{x_i})^2)\\\
+    apply\ Cauchy\ Schwartz\ Inequality:\\
+    let\ a=\bold{1}, b_i = \frac{v_i}{x_i}\\
+    \|\bold{1}\|_2^2 (\sum_i \frac{v_i^2}{x_i}) \geq (\sum_i \frac{v_i}{x_i})^2\\
+    n \sum_i \frac{v_i^2}{x_i^2} - (\sum_i \frac{v_i}{x_i})^2 \geq 0\\
+    v^T \nabla^2 f v \leq 0 \iff f\ concave
+  \end{align*}
+
+  \subsection{quadratic over linear, convex}
+  \begin{align*}
+    f(x,y) = \frac{h(x)}{g(y)}, g(y) \ linear, g(y) \in R_+\\
+    \nabla^2 f = vv^T \ is\ PSD \iff f\ convex
+  \end{align*}
+
+  \vfill\null
+  \columnbreak
+  
+  \section{Composition of functions}
+
+  idea: use known convex functions to compose into another convex function
+  
+  derivation from scalar composite function
+  \begin{align*}
+    &f=h(g(x))\\
+    &f'=g'(x)h'(g(x))\\
+    &f''=g''(x)h'(g(x)) + (g'(x))^2 h''(g(x))\\
+    \\
+    &\text{h convex \& non-decreasing, g convex } \implies \text{ f convex}\\
+    &h'' \geq 0, g''(x) \geq 0, h'(g(x)) \geq 0 \implies f'' \geq 0\\
+    \\
+    &\text{h convex \& non-increasing, g concave } \implies \text{ f convex}\\
+    &h'' \geq 0, g''(x) \leq 0, h'(g(x)) \leq 0 \implies f'' \geq 0\\
+    \\
+    &\text{h concave \& non-decreasing, g concave } \implies \text{ f concave}\\
+    &h'' \leq 0, g''(x) \leq 0, h'(g(x)) \geq 0 \implies f'' \leq 0\\
+    \\
+    &\text{h concave \& non-increasing, g convex } \implies \text{ f concave}\\
+    &h'' \leq 0, g''(x) \geq 0, h'(g(x)) \leq 0 \implies f'' \leq 0\\
+  \end{align*}
+
+  \vfill\null
+  \columnbreak
+  
+  \section{Convexity Preservation of Sets}
+  \subsection{Intersection}
+  \begin{align*}
+    (\forall \alpha \in A) S_{\alpha}\text{ is convex cone} \implies\\
+    \cap_{\alpha \in A} S_{\alpha} \text{ is convex cone}
+  \end{align*}
+  Any closed convex set can be represented by possibly infinitely many half spaces.\\
+  
+  \subsection{Affine functions}
+  let $f(x)=Ax+b, f:\R^n \to \R^m$\\
+  then if S is a convex set we have:
+  \begin{itemize}
+  \item project forward: $f(S) = \{ f(X) : X \in S \}$ is convex
+  \item project back: $f^{-1}(S) = \{ X : f(X) \in S \}$ is convex
+  \end{itemize}
+  Example:
+  \begin{align*}
+    C = \{ y : y=Ax+b, \norm{x} \leq 1\}
+  \end{align*}
+  $\norm{x} \leq 1$ is convex, $Ax+b$ is affine $\implies$ C is convex\\
+  Example:
+  \begin{align*}
+    C = \{ x : \norm{Ax+b} \leq 1 \}
+  \end{align*}
+    $\{y: \norm{y} \leq 1 \}$ is convex $\wedge$ $y$ is an affine function of $x \implies$ C is convex\\
+
+  \vfill\null
+  \pagebreak
+
+  \section{Problem Types}
+  \subsection*{LP}
+  standard, inequality, general forms
+  \begin{align*}
+    \min_x c^Tx\ s.t.:\\
+         Ax = b\\
+         x \succeq 0
+  \end{align*}
+
+  \begin{align*}
+    \min_x c^Tx\ s.t.:\\
+    Ax \preceq b
+  \end{align*}
+
+  \begin{align*}
+    \min_x c^Tx+d\ s.t.:\\
+    Gx \preceq h\\
+    Ax = b
+  \end{align*}
+  
+  \subsection*{QP}
+  \begin{align*}
+    \min_x \frac{1}{2} x^T P x + q^T x + r\ s.t.:\\
+    Gx \leq h\\
+    Ax = b
+  \end{align*}
+  \subsection*{QCQP}
+  \begin{align*}
+    \min_x \frac{1}{2}x^TP_0x + q_0^Tx + r_0, s.t.:\\
+    \frac{1}{2}x^TP_ix + q_i^Tx + r_i \leq 0, \forall i\\
+    Ax=b
+  \end{align*}
+  \subsection*{SOCP}
+  \begin{align*}
+    \min_x  f^T x\ s.t.:\\
+    \norm{A_ix+b_i}_2 \leq c_i^Tx+d_i, \forall i\\
+    Fx = g
+  \end{align*}
+  \begin{align*}
+    (\forall i) b_i=0 \implies LP\\
+    (\forall i) c_i=0 \implies QCQP
+  \end{align*}
+  \vfill\null
+  \columnbreak
+  \subsection*{GP}
+  \begin{align*}
+    \min_x & f_0(x)\ s.t.:\\
+    &f_i(x) \leq 1, \forall i\\
+    &h_i(x) = 1, \forall i\\
+    &f_i\ is\ a\ posynomial := \sum_i h_i\\
+    &h_i\ is\ a\ monomial := cx_1^{a_1}x_2^{a_2}.., c>0, a_i \in \R
+  \end{align*}
+  Use transform of objective and constraint functions:\\
+  $y_i=log x_i, x_i=e^{y_i}$\\
+  $\tilde{h_i}$ becomes exponential of affine function\\
+  $\tilde{f_i} = log(f_i)$ becomes log sum exp (convex)\\
+  If all constraints and objective are monomials, reduces to LP after transform.
+
+  \subsection*{Generlized Inequality, Conic}
+    \begin{align*}
+    \min_x\ c^Tx\ s.t.:\\
+    F x + g \preceq_K 0\\
+    Ax=b
+    \end{align*}
+    
+  \subsection*{Gneralized Inequality, SDP}
+  general, standard, inequality forms
+  \begin{align*}
+    \min_x\ c^Tx\ s.t.:\\
+    LMI:\ \sum_i^n x_i F_i + G \preceq_K 0\\
+    Ax=b\\
+    x\in\R^n\\
+    F_i,G \in S^m, K\in S_+^m
+  \end{align*}
+  \begin{align*}
+    \min_X\ tr(CX) s.t.:\\
+    tr(A_iX)=b_i, \forall i\\
+    X \succeq 0
+  \end{align*}
+  \begin{align*}
+    \min_x\ c^Tx\ s.t.:\\
+    \sum_i^n x_i A_i \preceq_K B\\
+    Ax=b\\
+    B,A_i \in S^m, K\in S_+^m
+  \end{align*}
+  concatenating constraints:
+  \begin{align*}
+    F^{(i)}(x) = \sum_j x_j F_i^{(i)} + G^{(i)} \preceq 0\\
+    Gx \preceq h\\
+    \implies\\
+    diag(Gx-h, F^{(1)}(x),..,F^{(m)}(x)) \preceq 0\\
+  \end{align*}  
+  if all matrices are diagonal, reduces to LP
+
+  \vfill\null
+  \pagebreak
+
+  \section{Constraint Qualifications}
+
+  $p^* \equiv$ optimal of primal
+  
+  $d^* \equiv$  optimal of dual
+
+  $d^* \leq p^*$
+  
+  optimality duality gap $\equiv p^* - d^*$
+  
+  constraint qualifications $\equiv$ conditions that confirms a problem has strong duality (optimal duality gap of 0 between primal and dual solution)
+
+  an example constraint qualification is Slater's conditions
+
+  \subsection{Slater's Constraint Qual.}
+  
+  $x^* \in relint(D)$, s.t.
+  
+  $f_i(x)<0, (\forall i) f_i(x)$ convex
+  
+  $Ax=b$
+
+  $\implies$ strong duality and problem is convex
+
+  \subsection{Slater's Constaint Qual., Variant}
+  $x^* \in relint(D)$ and
+  
+  partition inequalities $f_0, .., f_a, .., f_{n-1}$, s.t.
+  
+  $f_i(x) \leq 0 \wedge f_i(x)$ affine, $\forall i \in [0,a)$
+  
+  $f_i(x) < 0 \wedge f_i(x)$ convex, $\forall i \in [a, n)$
+  
+  $Ax = b$
+  
+  $\implies$ strong duality
+  
+  \subsection{KKT}
+  Assumes optimality achieved with 0 duality gap: $\nabla L(x^*,\lambda^*,v^*)=0$
+  \begin{align*}
+    &L(x^*,\lambda^*,v^*) = f_0(x^*) + \sum_i \lambda_i^* f_i(x^*) + \sum_i v_i h_i(x^*)\\
+    &\nabla L(x^*,\lambda^*,v^*) = \nabla f_0(x^*) + \sum_i \lambda_i^* \nabla f_i(x^*) + \sum_i v_i \nabla h_i(x^*)
+  \end{align*}
+  We have the constraints:
+  \begin{align*}
+    &f_i(x^*) \leq 0\\
+    &\lambda_i^* \geq 0\\
+    &h_i(x^*)=0\\
+    &\lambda_i^* f_i(x^*)=0\\
+    &\nabla L(x^*,\lambda^*,v^*) = \nabla f_0(x^*) + \sum_i \lambda_i^* \nabla f_i(x^*) + \sum_i v_i \nabla h_i(x^*)
+  \end{align*}
+
+  Primal inequality constraints convex and equality constraints affine and KKT satisfied $\implies$ 0 duality gap with specified points for primal and dual. (sufficient).\\
+
+  If Slater's constraint satisfied then the above is sufficient and necessary:\\
+  Primal inequality constraints convex and equality constraints affine and KKT satisfied $\iff$ 0 duality gap with specified points for primal and dual.\\
+  
+  \vfill\null
+  \pagebreak
+
+  \section{Lagrangian}
   original problem:
   \begin{align*}
     minimize\ &f_0(x)\ s.t.:\\
@@ -737,7 +776,7 @@
   \end{align*}
   pointwise infimum of family of affine functions of $(\lambda, v)$ $\implies$ g is concave wrt. $\lambda, v$ unconditionally
 
-  \subsubsection{lower bound property of dual function}
+  \subsection{lower bound property of dual function}
 
   $(\forall \lambda \succeq 0) (\forall v) g(\lambda, v) \leq p^*$ where $p^*$ is an optimal solution
 
@@ -815,18 +854,21 @@
   
   \section{Relaxation}
 
-  projection onto the feasible set\\
+  TODO
+  
+  projection onto the feasible set
 
-  take a larger feasible set and optimize in it instead, resulting optimal value is smaller or equal to the original\\
+  take a larger feasible set and optimize in it instead, resulting optimal value is smaller or equal to the original
 
   equality contraints that are convex but not affine, make them inequalities thus transforming to convex problem
   
   \vfill\null
-  
-  \pagebreak
+  \columnbreak
 
   \section{Regularized Approximation}
 
+  TODO
+  
   Noise sensitivity of different objectives:
   \begin{itemize}
   \item robust least squares / Huber penalty
@@ -851,13 +893,11 @@
     \end{itemize}
   \end{itemize}
 
-  Multicriterion Formulation\\
+  Multicriterion Formulation
 
-  Tikhonov Regularization\\
-  todo..
+  Tikhonov Regularization
   
   \vfill\null
-  
   \pagebreak
 
   \section{Descent Methods}
@@ -2285,10 +2325,9 @@
 
   \section{Subgradient Methods}
 
-  todo
+  TODO
 
   \vfill\null
-  
   \pagebreak
   
   \section{Appendix}
